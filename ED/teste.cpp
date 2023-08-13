@@ -1,12 +1,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <locale.h>
+#include <string.h>
 
 int main() {
     setlocale(LC_ALL, "Portuguese");
-    //char senha[8] = "senha123";
-    printf("Informe a senha secreta de 8 d�gitos: ");
-
-
+    char a[2] = "a";
+    int resul = strcmp(a, "a");
+    printf("%d", resul);
     return 0;
 }
