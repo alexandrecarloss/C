@@ -11,7 +11,7 @@ Objetivo: construção de um Sistema de Empréstimo de Equipamentos
 */
 
 typedef struct {
-    int dia, mes, ano;
+    int dia = NULL, mes = NULL, ano = NULL;
 } data;
 
 typedef struct {
@@ -44,13 +44,13 @@ typedef struct {
 typedef struct {
     int *numEmprestimo, *numEquipamento; //numEmprestimo + numEquipamento = primaary Key, numEmprestimo = foreign key para emprestimo, numEquipamento = foreign key para equipamento
     data dataDev; //Quando o valor de data em Devolucao for null, ou seja, data is null então quer dizer que o equipamento ainda está emprestado.
-    hora horario;
+    hora horaDev;
 } devolucao;
 
 //Definição da estrutura para equipamento
 typedef struct {
-    int *numero; //Primary key
-    char nome[30], descricao[50], disponivel; //Disponível [N]: Não; [S]: Sim, que pode ser emprestado.
+    int numero; //Primary key
+    char nome[30], descricao[50], disponivel[2]; //Disponível [N]: Não; [S]: Sim, que pode ser emprestado.
 } equipamento;
 
 //Procedimento para preencher setor
@@ -127,10 +127,10 @@ void impimeDadoServidor(servidor servidor) {
     cout << servidor.dataNasc.ano;
     cout << "\nCargo: ";
     int comp;
-    if(comp = strcmp(servidor.cargo, "T") == 0) {
+    if((comp = strcmp(servidor.cargo, "T")) == 0) {
         cout << "Técnico Administrativo";
     }
-    if(comp = strcmp(servidor.cargo, "P") == 0) {
+    if((comp = strcmp(servidor.cargo, "P")) == 0) {
         cout << "Professor";
     }
     cout << "\nCodSetor: " << *servidor.codSetor;
@@ -158,6 +158,7 @@ void dadoEmprestimo(emprestimo *emprestimo, servidor *servidor) {
     emprestimo->matServidor = &servidor->matricula;
     cout << "Informe o dia, mês e ano da saída do equipamento separados por espaço: ";
     scanf("%d%d%d", &emprestimo->dataSaida.dia, &emprestimo->dataSaida.mes, &emprestimo->dataSaida.ano);
+    getchar();
     cout << "Informe a hora e minuto de saída separados por espaço: ";
     scanf("%d%d", &emprestimo->horaSaida.horario, &emprestimo->horaSaida.minuto);
     getchar();
@@ -186,15 +187,103 @@ void imprimeDadoEmprestimo(emprestimo emprestimo) {
     cout << emprestimo.horaSaida.minuto;
     cout << "\nEstado: ";
     int comp;
-    if(comp = strcmp(emprestimo.encerrado, "S") == 0) {
+    if((comp = strcmp(emprestimo.encerrado, "S")) == 0) {
         cout << "Encerrado";
     }
-    if(comp = strcmp(emprestimo.encerrado, "N") == 0) {
+    if((comp = strcmp(emprestimo.encerrado, "N")) == 0) {
         cout << "Não encerrado";
     }
 }
 
+//Procedimento para preencher dados de equipamento
+void dadoEquipamento(equipamento *equipamento) {
+    //Padrão
+
+    equipamento->numero = 9;
+    strcpy(equipamento->nome, "Nome do equipamento 9");
+    strcpy(equipamento->descricao, "Descrição do equipamento 9");
+    strcpy(equipamento->disponivel, "S"); //Indica que está disponível para empréstimo
+
+    /*
+    //Por leitura de teclado
+    cout << "\nDados de equipamento\n";
+    cout << "Informe o número do equipamento: ";
+    scanf("%d", &equipamento->numero);
+    getchar();//Usado para consumir o caractere de quebra de linha que a função scanf() deixa no buffer
+    cout << "Informe o nome do equipamento: ";
+    gets(equipamento->nome);
+    cout << "Informe a descrição do equipamento: ";
+    gets(equipamento->descricao);
+    cout << "Informe o estado do equipamento: \n[N] = Não disponível \n[S] = Disponível \n";
+    scanf("%c", &equipamento->disponivel);
+    getchar();
+    */
+}
+
+//Procedimento para imprimir os dados do equipamento
+void imprimeDadoEquipamento(equipamento equipamento) {
+    cout << "\nInformações do equipamento";
+    cout << "\nNúmero: ";
+    cout << equipamento.numero;
+    cout << "\nNome: ";
+    cout << equipamento.nome;
+    cout << "\nDescrição: ";
+    cout << equipamento.descricao;
+    cout << "\nEstado: ";
+    int comp;
+    if((comp = strcmp(equipamento.disponivel, "S")) == 0) {
+        cout << "Disponível";
+    }
+    if((comp = strcmp(equipamento.disponivel, "N")) == 0) {
+        cout << "Não disponível";
+    }
+}
+
 //Procedimento para preencher dados de devolução
+void dadoDevolucao(devolucao *devolucao, emprestimo *emprestimo, equipamento *equipamento) {
+    //Padrão
+
+    devolucao->numEmprestimo = &emprestimo->numero;
+    devolucao->numEquipamento = &equipamento->numero;
+    devolucao->dataDev.dia = 1;
+    devolucao->dataDev.mes = 3;
+    devolucao->dataDev.ano = 2021;
+    devolucao->horaDev.horario = 15;
+    devolucao->horaDev.minuto = 53;
+
+    /*
+    //Por leitura de teclado
+    cout << "\nDados de devolução\n";
+    devolucao->numEmprestimo = &emprestimo.numero;
+    devolucao->numEquipamento = &equipamento.numero;
+    cout << "Informe o dia, mês e ano da devolução do equipamento separados por espaço: ";
+    scanf("%d%d%d", &devolucao->dataDev.dia, &devolucao->dataDev.mes, &devolucao->dataDev.ano);
+    getchar();
+    cout << "Informe a hora e minuto de devolução separados por espaço: ";
+    scanf("%d%d", &devolucao->horaDev.horario, &devolucao->horaDev.minuto);
+    getchar();
+    */
+}
+
+//Procedimento para imprimir dados de devolução
+void imprimeDadoDevolucao(devolucao devolucao) {
+    cout << "\nInformações de devolução";
+    cout << "\nNúmero empréstimo: ";
+    cout << *devolucao.numEmprestimo;
+    cout << "\nNúmero equipamento: ";
+    cout << *devolucao.numEquipamento;
+    cout << "\nData devolução: ";
+    cout << devolucao.dataDev.dia;
+    cout << "/";
+    cout << devolucao.dataDev.mes;
+    cout << "/";
+    cout << devolucao.dataDev.ano;
+    cout << "\nHora devolução: ";
+    cout <<  devolucao.horaDev.horario;
+    cout << ":";
+    cout <<  devolucao.horaDev.minuto;
+}
+
 int main() {
     setlocale(LC_ALL, "Portuguese");
     setor a;
@@ -203,13 +292,17 @@ int main() {
     servidor servidor;
     dadoServidor(&servidor, &a);
     //impimeDadoServidor(servidor);
-
-
     emprestimo emprestimo;
     dadoEmprestimo(&emprestimo, &servidor);
-    imprimeDadoEmprestimo(emprestimo);
-    devolucao d;
-    equipamento e;
+    //imprimeDadoEmprestimo(emprestimo);
+    equipamento equipamento;
+    dadoEquipamento(&equipamento);
+    imprimeDadoEquipamento(equipamento);
+
+    devolucao devolucao;
+
+    dadoDevolucao(&devolucao, &emprestimo, &equipamento);
+    imprimeDadoDevolucao(devolucao);
 
     return 0;
 }
