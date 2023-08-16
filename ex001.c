@@ -8,5 +8,6 @@ int main() {
     printf("Informe a senha secreta de 8 d�gitos: ");
 
 
+
     return 0;
 }
