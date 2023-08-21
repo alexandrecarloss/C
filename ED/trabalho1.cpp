@@ -322,11 +322,5 @@ void menu(){
 int main() {
     setlocale( LC_ALL, "portuguese" );
     menu();
-    /*
-    cadastrar_curso();
-    cont_curso++;
-    cadastrar_curso();
-    cont_curso++;
-    escolher_curso();
-    */
+
 }
