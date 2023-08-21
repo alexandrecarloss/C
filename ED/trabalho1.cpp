@@ -69,7 +69,7 @@ void cadastrar_curso(){
     gets(cursos[cont_curso].nome);
     cout<<"\nCódigo: ";
     gets(cursos[cont_curso].COD);
-   cout<<"\n\tCURSO CADASTRADO!!";
+    cout<<"\n\tCURSO CADASTRADO!!";
 }
 
 void cadastrar_armario(){
@@ -81,7 +81,7 @@ void cadastrar_armario(){
     gets(armarios[cont_armario].disponivel);
     cout<<"\nNúmero: ";
     cin>>armarios[cont_armario].num_armario;
-   cout<<"\n\tARMÁRIO CADASTRADO!!";
+    cout<<"\n\tARMÁRIO CADASTRADO!!";
 }
 
 void cadastrar_funcionario(){
@@ -99,7 +99,7 @@ void cadastrar_funcionario(){
     gets(funcionarios[cont_funcionario].fone);
     cout<<"\nSenha de acesso \tOBS:(Lembre-se da senha informada!)\t(Max:30 caracteres)\n";
     gets(funcionarios[cont_funcionario].senha);
-   cout<<"\n\tFUNCIONÁRIO CADASTRADO!!";
+    cout<<"\n\tFUNCIONÁRIO CADASTRADO!!";
 }
 
 void reservar_armario(){
@@ -113,22 +113,22 @@ void reservar_armario(){
     gets(reservas[cont_reserva].cod_reserva);
     cout<<"\nInforme o número do armário: ";
     cin>>reservas[cont_reserva].numero_armario;
-for(cont=0;cont<cont_alunos;cont++){
-    if(reservas[cont_reserva].mat_aluno==a_cursos[cont].matricula){
-        reservas[cont_reserva].data_rec=a_cursos[cont].inicio;
-        reservas[cont_reserva].data_dev=a_cursos[cont].fim;
-    }
- }
- cout<<"\n\tARMÁRIO RESERVADO!!";
+    for(cont=0;cont<cont_alunos;cont++){
+        if(reservas[cont_reserva].mat_aluno==a_cursos[cont].matricula){
+            reservas[cont_reserva].data_rec=a_cursos[cont].inicio;
+            reservas[cont_reserva].data_dev=a_cursos[cont].fim;
+        }
+     }
+    cout<<"\n\tARMÁRIO RESERVADO!!";
 }
 
-int buscar(){
+void buscar(){
     int opcao=0, arm_busc, contador;
     char matricula_a_busc[10], matricula_f_busc[10], cod_busc[7];
     while(opcao!=5){
     cout<<"\n1-Funcionário\n2-Aluno\n3-Armário\n4-Curso\n5-Voltar\n: ";
     cin>>opcao;
-     switch(opcao){
+        switch(opcao){
             case 1:
                 system("cls");
                 cout<<"\n\tInforme a matrícula  do funcionário\n: ";
@@ -177,21 +177,21 @@ int buscar(){
                 system("pause");
                 system("cls");
             break;
-     }
+        }
     }
 }
 
 void exibir_curso(){
     int cont;
     for (cont = 0; cont < cont_curso; cont++){
-            cout << "\nNome: " << cursos[cont].nome;
-            cout<< " \t COD:" << cursos[cont].COD;
-        }
+        cout << "\nNome: " << cursos[cont].nome;
+        cout<< " \t COD:" << cursos[cont].COD;
+    }
 }
 
 void escolher_curso(){
     cout<<"\nLISTA DE CURSOS CADASTRADOS:";
-     exibir_curso();
+    exibir_curso();
     cout<<"\nEscolha o COD correspondente:";
     fflush(stdin);
     gets(a_cursos[cont_alunos].cod_curso);
@@ -216,10 +216,15 @@ void cadastrar_aluno(){
     cin>>a_cursos[cont_alunos].inicio.ano;
     cout<<"\nAno previsto de término do curso:";
     cin>>a_cursos[cont_alunos].fim.ano;
-    escolher_curso();
-    cout<<"\nAno cursado: ";
-    cin>>a_cursos[cont_alunos].ano;
-    cout<<"\n\tALUNO CADASTRADO!!";
+    if(cont_curso == 0) {
+        printf("\nAinda não existem cursos cadastrados, cadastre um novo curso \n");
+        cadastrar_curso();
+    } else {
+        escolher_curso();
+        cout<<"\nAno cursado: ";
+        cin>>a_cursos[cont_alunos].ano;
+        cout<<"\n\tALUNO CADASTRADO!!";
+    }
 }
 
 
@@ -244,22 +249,18 @@ void exibir_termo_compromisso() {
         printf("\n\nErro: O arquivo termo_compromisso.txt não pode ser abreto\n");
         exit(1); //Saindo do programa
     }
-
     //Faça
     while((c = fgetc(pont_arq)) != EOF) {
         putchar(c);
     }
-
      //Fechando arquivo
     fclose(pont_arq);
-
 }
 
 
 void menuAluno() {
     int opcao;
     while(opcao != 4) {
-
         cout << "\nBem vindo aluno\n";
         cout << "O que você quer fazer? ";
         cout << "\nVer armários disponíveis [1] \nTermo de compromisso [2] \nVer avisos [3] \nVoltar [4]\n";
@@ -312,6 +313,7 @@ void menuFuncionario() {
             cadastrar_curso();
             break;
         case 5:
+            buscar();
             //excluir_aluno();
             break;
         case 6:
