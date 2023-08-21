@@ -122,7 +122,64 @@ for(cont=0;cont<cont_alunos;cont++){
  cout<<"\n\tARMÁRIO RESERVADO!!";
 }
 
-
+int buscar(){
+    int opcao=0, arm_busc, contador;
+    char matricula_a_busc[10], matricula_f_busc[10], cod_busc[7];
+    while(opcao!=5){
+    cout<<"\n1-Funcionário\n2-Aluno\n3-Armário\n4-Curso\n5-Voltar\n:";
+    cin>>opcao;
+     switch(opcao){
+            case 1:
+                system("cls");
+                cout<<"\n\tInforme a matrícula  do funcionário\n:";
+                scanf(" %[^\n]",matricula_f_busc);
+                for(contador=0;contador<cont_funcionario;contador++){
+                    if(strcmp(funcionarios[contador].matricula_f, matricula_f_busc)==0){
+                        return contador;
+                    }
+                }
+            break;
+            case 2:
+                system("cls");
+                 cout<<"\n\tInforme a Matrícula do aluno\n:";
+                 scanf(" %[^\n]",matricula_a_busc);
+                 for(contador=0;contador<cont_alunos;contador++){
+                    if(strcmp(alunos[contador].matricula_a,matricula_a_busc)==0){
+                        return contador;
+                    }
+                }
+            break;
+            case 3:
+                system("cls");
+                 cout<<"\n\tInforme o número do armário\n:";
+                cin>>arm_busc;
+                for(contador=0;contador<cont_armario;contador++){
+                    if(armarios[contador].num_armario=arm_busc){
+                       return contador;
+                    }
+                }
+            break;
+            case 4:
+                system("cls");
+                 cout<<"\n\tInforme o Cod do curso\n:";
+                 scanf(" %[^\n]",cod_busc);
+                 for(contador=0;contador<cont_curso;contador++){
+                    if(strcmp(cursos[contador].COD,cod_busc)==0){
+                        return contador;
+                    }
+                }
+            break;
+            case 5:
+                system("cls");
+            break;
+            default:
+                cout << "Opção inválida! ";
+                system("pause");
+                system("cls");
+            break;
+     }
+    }
+}
 
 void exibir_curso(){
     int cont;
