@@ -70,6 +70,7 @@ void cadastrar_curso(){
     cout<<"\nCódigo: ";
     gets(cursos[cont_curso].COD);
     cout<<"\n\tCURSO CADASTRADO!!";
+    cont_curso++;
 }
 
 void cadastrar_armario(){
@@ -82,6 +83,7 @@ void cadastrar_armario(){
     cout<<"\nNúmero: ";
     cin>>armarios[cont_armario].num_armario;
     cout<<"\n\tARMÁRIO CADASTRADO!!";
+    cont_armario++;
 }
 
 void cadastrar_funcionario(){
@@ -100,6 +102,7 @@ void cadastrar_funcionario(){
     cout<<"\nSenha de acesso \tOBS:(Lembre-se da senha informada!)\t(Max:30 caracteres)\n";
     gets(funcionarios[cont_funcionario].senha);
     cout<<"\n\tFUNCIONÁRIO CADASTRADO!!";
+    cont_funcionario++;
 }
 
 void reservar_armario(){
@@ -122,30 +125,36 @@ void reservar_armario(){
     cout<<"\n\tARMÁRIO RESERVADO!!";
 }
 
-void buscar(){
+int buscar() {
     int opcao=0, arm_busc, contador;
     char matricula_a_busc[10], matricula_f_busc[10], cod_busc[7];
     while(opcao!=5){
     cout<<"\n1-Funcionário\n2-Aluno\n3-Armário\n4-Curso\n5-Voltar\n: ";
-    cin>>opcao;
+    cin >> opcao;
         switch(opcao){
             case 1:
                 system("cls");
+
                 cout<<"\n\tInforme a matrícula  do funcionário\n: ";
                 scanf(" %[^\n]",matricula_f_busc);
-                for(contador=0;contador<cont_funcionario;contador++){
+                for(contador = 0; contador < cont_funcionario; contador++){
                     if(strcmp(funcionarios[contador].matricula_f, matricula_f_busc)==0){
                         return contador;
+                    } else {
+                        cout << "Funcionário não encontrado!";
                     }
                 }
+
             break;
             case 2:
                 system("cls");
                  cout<<"\n\tInforme a Matrícula do aluno\n: ";
                  scanf(" %[^\n]",matricula_a_busc);
-                 for(contador=0;contador<cont_alunos;contador++){
+                 for(contador = 0; contador < cont_alunos; contador++){
                     if(strcmp(alunos[contador].matricula_a,matricula_a_busc)==0){
                         return contador;
+                    } else {
+                        cout << "Aluno não encontrado!";
                     }
                 }
             break;
@@ -153,9 +162,11 @@ void buscar(){
                 system("cls");
                  cout<<"\n\tInforme o número do armário\n: ";
                 cin>>arm_busc;
-                for(contador=0;contador<cont_armario;contador++){
+                for(contador = 0; contador < cont_armario; contador++){
                     if(armarios[contador].num_armario=arm_busc){
                        return contador;
+                    } else {
+                        cout << "Armário não encontrado!";
                     }
                 }
             break;
@@ -163,9 +174,11 @@ void buscar(){
                 system("cls");
                  cout<<"\n\tInforme o Cod do curso\n: ";
                  scanf(" %[^\n]",cod_busc);
-                 for(contador=0;contador<cont_curso;contador++){
+                 for(contador = 0;contador < cont_curso; contador++){
                     if(strcmp(cursos[contador].COD,cod_busc)==0){
                         return contador;
+                    } else {
+                        cout << "Curso não encontrado!";
                     }
                 }
             break;
@@ -182,10 +195,52 @@ void buscar(){
 }
 
 void exibir_curso(){
-    int cont;
-    for (cont = 0; cont < cont_curso; cont++){
-        cout << "\nNome: " << cursos[cont].nome;
-        cout<< " \t COD:" << cursos[cont].COD;
+    if(cont_curso == 0) {
+        cout << "\nNão há cursos cadastrados!\n";
+    } else {
+        int cont;
+        for (cont = 0; cont < cont_curso; cont++){
+            cout<< " \nCOD: " << cursos[cont].COD;
+            cout << "\nNome: " << cursos[cont].nome;
+        }
+    }
+}
+
+void exibir_funcionario() {
+    if(cont_funcionario == 0) {
+        cout << "Não há funcionários cadastrados!";
+    } else {
+        int cont;
+        for (cont = 0; cont < cont_funcionario; cont++){
+            cout<< " \nMatrícula: " << funcionarios[cont].matricula_f;
+            cout << "\nNome: " << funcionarios[cont].nome;
+        }
+    }
+}
+
+void exibir_armario() {
+    if(cont_armario == 0) {
+        cout << "Não há armários cadastrados!";
+    } else {
+        int cont;
+        for (cont = 0; cont < cont_armario; cont++){
+            cout << "\nNúmero: " << armarios[cont].num_armario;
+            cout<< " \nDisponível :" << armarios[cont].disponivel;
+            cout<< " \nEstado :" << armarios[cont].estado;
+        }
+    }
+}
+
+void exibir_aluno() {
+    if(cont_alunos == 0) {
+        cout << "Não há alunos cadastrados!";
+    } else {
+        int cont;
+        for (cont = 0; cont < cont_alunos; cont++){
+            cout << "\nMatrícula: " << alunos[cont].matricula_a;
+            cout<< " \nNome :" << alunos[cont].nome;
+            cout<< " \nTurma :" << alunos[cont].turma;
+        }
     }
 }
 
@@ -219,12 +274,13 @@ void cadastrar_aluno(){
     if(cont_curso == 0) {
         printf("\nAinda não existem cursos cadastrados, cadastre um novo curso \n");
         cadastrar_curso();
-    } else {
-        escolher_curso();
-        cout<<"\nAno cursado: ";
-        cin>>a_cursos[cont_alunos].ano;
-        cout<<"\n\tALUNO CADASTRADO!!";
     }
+    escolher_curso();
+    cout<<"\nAno cursado: ";
+    cin>>a_cursos[cont_alunos].ano;
+    cout<<"\n\tALUNO CADASTRADO!!";
+    cont_alunos++;
+
 }
 
 
