@@ -63,56 +63,56 @@ int cont_funcionario, cont_armario, cont_reserva, cont_curso=0, cont_alunos;
 
 
 void cadastrar_curso(){
-fflush(stdin);
-cout<<"\n\t---CADASTRO DE CURSO---:";
-cout<<"\nNome:";
-gets(cursos[cont_curso].nome);
-cout<<"\nCódigo:";
-gets(cursos[cont_curso].COD);
+    fflush(stdin);
+    cout<<"\n\t---CADASTRO DE CURSO---:";
+    cout<<"\nNome:";
+    gets(cursos[cont_curso].nome);
+    cout<<"\nCódigo:";
+    gets(cursos[cont_curso].COD);
    cout<<"\n\tCURSO CADASTRADO!!";
 }
 
 void cadastrar_armario(){
-fflush(stdin);
-cout<<"\t---CADASTRO DE ARMÁRIO---:";
-cout<<"\nEstado:";
-gets(armarios[cont_armario].estado);
-cout<<"\nDisponível?";
-gets(armarios[cont_armario].disponivel);
-cout<<"\nNúmero:";
-cin>>armarios[cont_armario].num_armario;
+    fflush(stdin);
+    cout<<"\t---CADASTRO DE ARMÁRIO---:";
+    cout<<"\nEstado:";
+    gets(armarios[cont_armario].estado);
+    cout<<"\nDisponível?";
+    gets(armarios[cont_armario].disponivel);
+    cout<<"\nNúmero:";
+    cin>>armarios[cont_armario].num_armario;
    cout<<"\n\tARMÁRIO CADASTRADO!!";
 }
 
 void cadastrar_funcionario(){
-fflush(stdin);
-cout<<"\t---CADASTRO DE FUNCIONÁRIO---:";
-cout<<"\nNome:";
-gets(funcionarios[cont_funcionario].nome);
-cout<<"\nMatrícula:";
-gets(funcionarios[cont_funcionario].matricula_f);
-cout<<"\nUsuário:";
-gets(funcionarios[cont_funcionario].user);
-cout<<"\nE-mail:";
-gets(funcionarios[cont_funcionario].e_mail);
-cout<<"\nFone:";
-gets(funcionarios[cont_funcionario].fone);
-cout<<"\nSenha de acesso \tOBS:(Lembre-se da senha informada!)\t(Max:30 caracteres)\n";
-gets(funcionarios[cont_funcionario].senha);
+    fflush(stdin);
+    cout<<"\t---CADASTRO DE FUNCIONÁRIO---:";
+    cout<<"\nNome:";
+    gets(funcionarios[cont_funcionario].nome);
+    cout<<"\nMatrícula:";
+    gets(funcionarios[cont_funcionario].matricula_f);
+    cout<<"\nUsuário:";
+    gets(funcionarios[cont_funcionario].user);
+    cout<<"\nE-mail:";
+    gets(funcionarios[cont_funcionario].e_mail);
+    cout<<"\nFone:";
+    gets(funcionarios[cont_funcionario].fone);
+    cout<<"\nSenha de acesso \tOBS:(Lembre-se da senha informada!)\t(Max:30 caracteres)\n";
+    gets(funcionarios[cont_funcionario].senha);
    cout<<"\n\tFUNCIONÁRIO CADASTRADO!!";
 }
 
 void reservar_armario(){
     int cont;
-fflush(stdin);
-cout<<"\nInforme a matrícula do funcionário";
-gets(reservas[cont_reserva].mat_funcionario);
-cout<<"\nInforme a matrícula do aluno";
-gets(reservas[cont_reserva].mat_aluno);
-cout<<"\nQual o código dessa reserva";
-gets(reservas[cont_reserva].cod_reserva);
-cout<<"\nInforme o número do armário";
-cin>>reservas[cont_reserva].numero_armario;
+    fflush(stdin);
+    cout<<"\nInforme a matrícula do funcionário";
+    gets(reservas[cont_reserva].mat_funcionario);
+    cout<<"\nInforme a matrícula do aluno";
+    gets(reservas[cont_reserva].mat_aluno);
+    cout<<"\nQual o código dessa reserva";
+    gets(reservas[cont_reserva].cod_reserva);
+    cout<<"\nInforme o número do armário";
+    cin>>reservas[cont_reserva].numero_armario;
 for(cont=0;cont<cont_alunos;cont++){
     if(reservas[cont_reserva].mat_aluno==a_cursos[cont].matricula){
         reservas[cont_reserva].data_rec=a_cursos[cont].inicio;
@@ -142,27 +142,27 @@ void escolher_curso(){
 
 
 void cadastrar_aluno(){
-fflush(stdin);
-cout<<"\t---CADASTRO DE ALUNO---:";
-cout<<"\nNome:";
-gets(alunos[cont_alunos].nome);
-cout<<"\nMatrícula:";
-gets(alunos[cont_alunos].matricula_a);
-strcpy(a_cursos[cont_alunos].matricula,alunos[cont_alunos].matricula_a);
-cout<<"\nTurma:";
-gets(alunos[cont_alunos].turma);
-cout<<"\nFone para contato:";
-gets(alunos[cont_alunos].fone);
-cout<<"\nE-mail:";
-gets(alunos[cont_alunos].e_mail);
-cout<<"\nAno de entrada no curso:";
-cin>>a_cursos[cont_alunos].inicio.ano;
-cout<<"\nAno previsto de término do curso:";
-cin>>a_cursos[cont_alunos].fim.ano;
-escolher_curso();
-cout<<"\nAno cursado";
-cin>>a_cursos[cont_alunos].ano;
-cout<<"\n\tALUNO CADASTRADO!!";
+    fflush(stdin);
+    cout<<"\t---CADASTRO DE ALUNO---:";
+    cout<<"\nNome:";
+    gets(alunos[cont_alunos].nome);
+    cout<<"\nMatrícula:";
+    gets(alunos[cont_alunos].matricula_a);
+    strcpy(a_cursos[cont_alunos].matricula,alunos[cont_alunos].matricula_a);
+    cout<<"\nTurma:";
+    gets(alunos[cont_alunos].turma);
+    cout<<"\nFone para contato:";
+    gets(alunos[cont_alunos].fone);
+    cout<<"\nE-mail:";
+    gets(alunos[cont_alunos].e_mail);
+    cout<<"\nAno de entrada no curso:";
+    cin>>a_cursos[cont_alunos].inicio.ano;
+    cout<<"\nAno previsto de término do curso:";
+    cin>>a_cursos[cont_alunos].fim.ano;
+    escolher_curso();
+    cout<<"\nAno cursado";
+    cin>>a_cursos[cont_alunos].ano;
+    cout<<"\n\tALUNO CADASTRADO!!";
 }
 
 
@@ -233,12 +233,13 @@ void menuAluno() {
 
 void menuFuncionario() {
     int opcao;
-    while(opcao != 9) {
+    while(opcao != 13) {
         system("cls");
         cout << "Bem vindo funcionário\n";
         cout << "\nO que você quer fazer? ";
         cout << "\nCadastrar aluno [1] \nCadastrar funcionário [2]\nCadastrar armário [3] \nCadastrar curso [4]\n";
-        cout << "Excluir aluno [5] \nExcluir funcionário [6] \nExcluir armário [7] \nExcluir curso [8] \nVoltar [9]\n";
+        cout << "Excluir aluno [5] \nExcluir funcionário [6] \nExcluir armário [7] \nExcluir curso [8] ";
+        cout << "Editar aluno [9] \nEditar funcionário [10] \nEditar armário [11] \nEditar curso [12] \nVoltar [13]\n";
        scanf("%d", &opcao);
         switch(opcao) {
         case 1:
@@ -266,6 +267,18 @@ void menuFuncionario() {
             //excluir_curso();
             break;
         case 9:
+            //editar_aluno();
+            break;
+        case 10:
+            //editar_funcionario();
+            break;
+        case 11:
+            //editar_armario();
+            break;
+        case 12:
+            //editar_curso();
+            break;
+        case 13:
             cout << "Voltando ao menu principal...";
             break;
         default:
