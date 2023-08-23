@@ -10,7 +10,7 @@ int main() {
     setlocale(LC_ALL, "Portuguese");
     //Criando uma variável ponteiro para o arquivo
     FILE *pont_arq;
-    char nome[100], n[100], espaco;
+    char nome[100], n[100], espaco[2] = " ";
     int idade, i, tamString;
     float altura, a;
     pont_arq = fopen("teste.txt", "a");
@@ -19,7 +19,7 @@ int main() {
         scanf("%100[^\n]%d%f", nome, &idade, &altura);
 
         tamString = strlen(nome);
-        for(i = 0; i< tamString; i++) {
+        for(i = 0; i < tamString; i++) {
             if(nome[i] == ' ') {
                 nome[i] = '_';
             }
@@ -37,9 +37,9 @@ int main() {
     if(pont_arq){
         printf("\tDados lidos do arquivo:\n");
         while(fscanf(pont_arq, "%s%d%f", nome, &idade, &altura) != EOF) {
-            for(i = -1; i< tamString; i++) {
+            for(i = 0; i <= tamString; i++) {
                 if(nome[i] == '_') {
-
+                    //strcpy(nome[i], espaco);
                     nome[i] = ' ';
                 }
             }
