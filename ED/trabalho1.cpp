@@ -10,6 +10,7 @@
 #define  TAMARMARIOS 800
 #define  TAMFUNCIONARIOS 5
 #define  TAMRESERVAS 800
+#define TAMPKEY 10
 using namespace std;
 //Novas variáveis solicitadas
 
@@ -22,19 +23,19 @@ typedef struct {
 } Hora;
 
 typedef struct {
-   char	  nome[60], COD[7];
+   char	  nome[60], COD[TAMPKEY];
 } Curso;
 
 typedef struct {
-   char	  nome[60], matricula_a[10],e_mail[60], turma[20],fone[15];
+   char	  nome[60], matricula_a[TAMPKEY],e_mail[60], turma[20],fone[15];
 }Aluno;
 
 typedef struct {
-   char	  nome[60], matricula_f[10],e_mail[60], senha[30],fone[15], user[60];
+   char	  nome[60], matricula_f[TAMPKEY],e_mail[60], senha[30],fone[15], user[60];
 }Funcionario;
 
 typedef struct {
-   char	  cod_curso[6], matricula[10];
+   char	  cod_curso[TAMPKEY], matricula[TAMPKEY];
    int ano;
    Data inicio, fim;
 }Aluno_Curso;
@@ -45,7 +46,7 @@ typedef struct {
 } Armario;
 
 typedef struct {
-   char	  cod_reserva[10],mat_aluno[10],mat_funcionario[10];
+   char	  cod_reserva[TAMPKEY],mat_aluno[TAMPKEY],mat_funcionario[TAMPKEY];
    int numero_armario;
    Data data_rec, data_dev;
 } Reserva;
@@ -58,53 +59,240 @@ Reserva reservas[TAMRESERVAS];
 Curso cursos[TAMCURSOS];
 Aluno_Curso a_cursos[TAMALUNOS];
 Aluno alunos[TAMALUNOS];
-int cont_funcionario, cont_armario, cont_reserva, cont_curso=0, cont_alunos;
+int cont_funcionario, cont_armario, cont_reserva, cont_curso, cont_aluno;
 //Funções
 
 
+void ler_aluno_arquivo() {
+    FILE *pont_arq;
+    int tamString, i, cont = 0;
+    pont_arq = fopen("aluno.txt", "r");
+    if(pont_arq){
+         //printf("\nDados lidos do arquivo aluno.txt:\n");
+        while(fscanf(pont_arq, "%s%s%s%s%s", alunos[cont].nome, alunos[cont].matricula_a, alunos[cont].e_mail, alunos[cont].turma, alunos[cont].fone) != EOF) {
+            for(i = 0; i <= strlen(alunos[cont].nome); i++) {
+                if(alunos[cont].nome[i] == '_') {
+                    alunos[cont].nome[i] = ' ';
+                }
+            }
+            strcpy(alunos[cont].fone, alunos[cont].fone);
+            strcpy(alunos[cont].e_mail, alunos[cont].e_mail);
+            strcpy(alunos[cont].matricula_a, alunos[cont].matricula_a);
+            strcpy(alunos[cont].turma, alunos[cont].turma);
+            strcpy(alunos[cont].nome, alunos[cont].nome);
+
+            //printf("\nNome: %s\nMatrícula: %s \nE_mail: %s \nTurma: %s \nFone: %s\n", alunos[cont].nome, alunos[cont].matricula_a, alunos[cont].e_mail, alunos[cont].turma, alunos[cont].fone);
+            cont++;
+            cont_aluno++;
+        }
+        fclose(pont_arq);
+    }
+    else
+        printf("\nERRO ao abrir arquivo!\n");
+}
+
+void gravar_aluno_arquivo() {
+    //Criando uma variável ponteiro para o arquivo
+    FILE *pont_arq;
+    int i;
+    pont_arq = fopen("aluno.txt", "w");
+    if(pont_arq) {
+        for(int pos = 0; pos <= cont_aluno; pos++) {
+            for(i = 0; i < strlen(alunos[pos].nome); i++) {
+                if(alunos[pos].nome[i] == ' ') {
+                    alunos[pos].nome[i] = '_';
+                }
+            }
+            fprintf(pont_arq, "%s \n", alunos[pos].nome);
+            fprintf(pont_arq, "%s \n", alunos[pos].matricula_a);
+            fprintf(pont_arq, "%s \n", alunos[pos].e_mail);
+            fprintf(pont_arq, "%s \n", alunos[pos].turma);
+            fprintf(pont_arq, "%s \n", alunos[pos].fone);
+        }
+        fclose(pont_arq);
+    } else {
+        printf("\nERRO ao abrir arquivo!\n");
+    }
+}
+
+
+void ler_funcionario_arquivo() {
+    FILE *pont_arq;
+    int i, cont = 0;
+    pont_arq = fopen("funcionario.txt", "r");
+    if(pont_arq){
+        //printf("\nDados lidos do arquivo funcionario.txt:\n");
+        while(fscanf(pont_arq, "%s%s%s%s%s%s", funcionarios[cont].nome, funcionarios[cont].matricula_f, funcionarios[cont].e_mail, funcionarios[cont].senha, funcionarios[cont].fone, funcionarios[cont].user) != EOF) {
+            for(i = 0; i <= strlen(funcionarios[cont].nome); i++) {
+                if(funcionarios[cont].nome[i] == '_') {
+                    funcionarios[cont].nome[i] = ' ';
+                }
+            }
+            strcpy(funcionarios[cont].nome, funcionarios[cont].nome);
+            strcpy(funcionarios[cont].matricula_f, funcionarios[cont].matricula_f);
+            strcpy(funcionarios[cont].e_mail, funcionarios[cont].e_mail);
+            strcpy(funcionarios[cont].senha, funcionarios[cont].senha);
+            strcpy(funcionarios[cont].fone, funcionarios[cont].fone);
+            strcpy(funcionarios[cont].user, funcionarios[cont].user);
+            cont_funcionario++;
+            cont++;
+        }
+        fclose(pont_arq);
+    }
+    else
+        printf("\nERRO ao abrir arquivo!\n");
+}
+
+void gravar_funcionario_arquivo() {
+    //Criando uma variável ponteiro para o arquivo
+    FILE *pont_arq;
+    int i;
+    pont_arq = fopen("funcionario.txt", "w");
+    if(pont_arq) {
+        for(int pos = 0; pos <= cont_funcionario; pos++) {
+            for(i = 0; i <= strlen(funcionarios[pos].nome); i++) {
+                if(funcionarios[pos].nome[i] == ' ') {
+                    funcionarios[pos].nome[i] = '_';
+                }
+            }
+            fprintf(pont_arq, "%s \n", funcionarios[pos].nome);
+            fprintf(pont_arq, "%s \n", funcionarios[pos].matricula_f);
+            fprintf(pont_arq, "%s \n", funcionarios[pos].e_mail);
+            fprintf(pont_arq, "%s \n", funcionarios[pos].senha);
+            fprintf(pont_arq, "%s \n", funcionarios[pos].fone);
+            fprintf(pont_arq, "%s \n", funcionarios[pos].user);
+        }
+        fclose(pont_arq);
+    } else {
+        printf("\nERRO ao abrir arquivo!\n");
+    }
+}
+
+
+void ler_armario_arquivo() {
+    FILE *pont_arq;
+    int cont = 0, i;
+    pont_arq = fopen("armario.txt", "r");
+    if(pont_arq){
+        //printf("\nDados lidos do arquivo armario.txt:\n");
+        while(fscanf(pont_arq, "%s%s%i", armarios[cont].estado, armarios[cont].disponivel, &armarios[cont].num_armario) != EOF) {
+            strcpy(armarios[cont].estado, armarios[cont].estado);
+            strcpy(armarios[cont].disponivel, armarios[cont].disponivel);
+            armarios[cont].num_armario = armarios[cont].num_armario;
+            cont_armario++;
+            cont++;
+        }
+        fclose(pont_arq);
+    }
+    else
+        printf("\nERRO ao abrir arquivo!\n");
+}
+
+void gravar_armario_arquivo() {
+    //Criando uma variável ponteiro para o arquivo
+    FILE *pont_arq;
+    int i;
+    pont_arq = fopen("armario.txt", "w");
+    if(pont_arq) {
+        for(int pos = 0; pos <= cont_armario; pos++) {
+            fprintf(pont_arq, "%s \n", armarios[pos].estado);
+            fprintf(pont_arq, "%s \n", armarios[pos].disponivel);
+            fprintf(pont_arq, "%d \n", armarios[pos].num_armario);
+        }
+        fclose(pont_arq);
+    } else {
+        printf("\nERRO ao abrir arquivo!\n");
+    }
+}
+
+
+void ler_curso_arquivo() {
+    FILE *pont_arq;
+    int cont = 0, i;
+    pont_arq = fopen("curso.txt", "r");
+    if(pont_arq){
+        //printf("\nDados lidos do arquivo curso.txt:\n");
+        while(fscanf(pont_arq, "%s%s", cursos[cont].nome, cursos[cont].COD) != EOF) {
+            for(i = 0; i <= strlen(cursos[cont].nome); i++) {
+                if(cursos[cont].nome[i] == '_') {
+                    cursos[cont].nome[i] = ' ';
+                }
+            }
+            strcpy(cursos[cont].nome, cursos[cont].nome);
+            strcpy(cursos[cont].COD, cursos[cont].COD);
+            cont_curso++;
+            cont++;
+        }
+        fclose(pont_arq);
+    }
+    else
+        printf("\nERRO ao abrir arquivo!\n");
+}
+
+void gravar_curso_arquivo() {
+    //Criando uma variável ponteiro para o arquivo
+    FILE *pont_arq;
+    int i;
+    pont_arq = fopen("curso.txt", "w");
+    if(pont_arq) {
+        for(int pos = 0; pos <= cont_curso; pos++){
+            for(i = 0; i < strlen(cursos[pos].nome); i++) {
+                if(cursos[pos].nome[i] == ' ') {
+                    cursos[pos].nome[i] = '_';
+                }
+            }
+            fprintf(pont_arq, "%s \n", cursos[pos].nome);
+            fprintf(pont_arq, "%s \n", cursos[pos].COD);
+        }
+        fclose(pont_arq);
+    } else {
+        printf("\nERRO ao abrir arquivo!\n");
+    }
+}
+
 void cadastrar_curso(){
-    fflush(stdin);
     cout<<"\n\t---CADASTRO DE CURSO---:";
     cout<<"\nNome: ";
-    gets(cursos[cont_curso].nome);
+     scanf(" %[^\n]",cursos[cont_curso].nome);
     cout<<"\nCódigo: ";
-    gets(cursos[cont_curso].COD);
+     scanf(" %[^\n]",cursos[cont_curso].COD);
     cout<<"\n\tCURSO CADASTRADO!!";
     cont_curso++;
+
 }
 
 void cadastrar_armario(){
-    fflush(stdin);
     cout<<"\t---CADASTRO DE ARMÁRIO---: ";
     cout<<"\nEstado: ";
-    gets(armarios[cont_armario].estado);
+    scanf(" %[^\n]",armarios[cont_armario].estado);
     cout<<"\nDisponível? [S] Sim [N] Não\n";
-    gets(armarios[cont_armario].disponivel);
+    scanf(" %[^\n]",armarios[cont_armario].disponivel);
     cout<<"\nNúmero: ";
     cin>>armarios[cont_armario].num_armario;
     cout<<"\n\tARMÁRIO CADASTRADO!!";
     cont_armario++;
+
 }
 
 void cadastrar_funcionario(){
-    fflush(stdin);
     cout<<"\t---CADASTRO DE FUNCIONÁRIO---:";
     cout<<"\nNome: ";
-    gets(funcionarios[cont_funcionario].nome);
+    scanf(" %[^\n]",funcionarios[cont_funcionario].nome);
     cout<<"\nMatrícula: ";
-    gets(funcionarios[cont_funcionario].matricula_f);
+    scanf(" %[^\n]",funcionarios[cont_funcionario].matricula_f);
     cout<<"\nUsuário: ";
-    gets(funcionarios[cont_funcionario].user);
+    scanf(" %[^\n]",funcionarios[cont_funcionario].user);
     cout<<"\nE-mail: ";
-    gets(funcionarios[cont_funcionario].e_mail);
+    scanf(" %[^\n]",funcionarios[cont_funcionario].e_mail);
     cout<<"\nFone: ";
-    gets(funcionarios[cont_funcionario].fone);
+    scanf(" %[^\n]",funcionarios[cont_funcionario].fone);
     cout<<"\nSenha de acesso \tOBS:(Lembre-se da senha informada!)\t(Max:30 caracteres)\n";
-    gets(funcionarios[cont_funcionario].senha);
+    scanf(" %[^\n]",funcionarios[cont_funcionario].senha);
     cout<<"\n\tFUNCIONÁRIO CADASTRADO!!";
     cont_funcionario++;
-}
 
+}
+/*
 void reservar_armario(){
     int cont;
     fflush(stdin);
@@ -116,7 +304,24 @@ void reservar_armario(){
     gets(reservas[cont_reserva].cod_reserva);
     cout<<"\nInforme o número do armário: ";
     cin>>reservas[cont_reserva].numero_armario;
-    for(cont=0;cont<cont_alunos;cont++){
+    for(cont=0;cont<cont_aluno;cont++){
+        if(reservas[cont_reserva].mat_aluno==a_cursos[cont].matricula){
+            reservas[cont_reserva].data_rec=a_cursos[cont].inicio;
+            reservas[cont_reserva].data_dev=a_cursos[cont].fim;
+        }
+     }
+    cout<<"\n\tARMÁRIO RESERVADO!!";
+}
+*/
+void reservar_armario(char matAluno[TAMPKEY], char matFunc[TAMPKEY]){
+    int cont;
+    strcpy(reservas[cont_reserva].mat_funcionario, matFunc);
+    strcpy(reservas[cont_reserva].mat_aluno, matAluno);
+    cout<<"\nQual o código dessa reserva: ";
+    gets(reservas[cont_reserva].cod_reserva);
+    //Número do armario recebe a quantidade de reservas
+    reservas[cont_reserva].numero_armario = cont_reserva;
+    for(cont=0;cont<cont_aluno;cont++){
         if(reservas[cont_reserva].mat_aluno==a_cursos[cont].matricula){
             reservas[cont_reserva].data_rec=a_cursos[cont].inicio;
             reservas[cont_reserva].data_dev=a_cursos[cont].fim;
@@ -125,168 +330,282 @@ void reservar_armario(){
     cout<<"\n\tARMÁRIO RESERVADO!!";
 }
 
-int buscar() {
-    int opcao=0, arm_busc, contador;
+int pergunta(){
+    int op, para;
+    while(op != 5){
+        cout<<"\n1-Funcionário\n2-Aluno\n3-Armário\n4-Curso\n5-Voltar\n:";
+        cin >> op;
+        switch(op){
+            case 1:
+                return op;
+                break;
+            case 2:
+                return op;
+                break;
+            case 3:
+                return op;
+                break;
+            case 4:
+                return op;
+                break;
+            case 5:
+                return op;
+                break;
+            default:
+                system("cls");
+                cout << "Opção inválida!\n";
+                system("pause");
+            break;
+            }
+    }
+}
+
+
+int buscar(int opcao) {
+    int arm_busc, contador;
     char matricula_a_busc[10], matricula_f_busc[10], cod_busc[7];
-    while(opcao!=5){
-    cout<<"\n1-Funcionário\n2-Aluno\n3-Armário\n4-Curso\n5-Voltar\n: ";
-    cin >> opcao;
         switch(opcao){
             case 1:
                 system("cls");
-
                 cout<<"\n\tInforme a matrícula  do funcionário\n: ";
                 scanf(" %[^\n]",matricula_f_busc);
-                for(contador = 0; contador < cont_funcionario; contador++){
+                for(contador = 0; contador <= cont_funcionario; contador++){
                     if(strcmp(funcionarios[contador].matricula_f, matricula_f_busc)==0){
-                        return contador;
+                       return contador;
                     } else {
+                        system("cls");
                         cout << "Funcionário não encontrado!";
                     }
                 }
-
-            break;
+                break;
             case 2:
                 system("cls");
                  cout<<"\n\tInforme a Matrícula do aluno\n: ";
                  scanf(" %[^\n]",matricula_a_busc);
-                 for(contador = 0; contador < cont_alunos; contador++){
+                 for(contador = 0; contador < cont_aluno; contador++){
                     if(strcmp(alunos[contador].matricula_a,matricula_a_busc)==0){
                         return contador;
                     } else {
+                        system("cls");
                         cout << "Aluno não encontrado!";
                     }
                 }
-            break;
+                break;
             case 3:
                 system("cls");
                  cout<<"\n\tInforme o número do armário\n: ";
                 cin>>arm_busc;
                 for(contador = 0; contador < cont_armario; contador++){
                     if(armarios[contador].num_armario=arm_busc){
-                       return contador;
+                            return contador;
                     } else {
+                        system("cls");
                         cout << "Armário não encontrado!";
                     }
                 }
-            break;
+                break;
             case 4:
                 system("cls");
                  cout<<"\n\tInforme o Cod do curso\n: ";
                  scanf(" %[^\n]",cod_busc);
                  for(contador = 0;contador < cont_curso; contador++){
                     if(strcmp(cursos[contador].COD,cod_busc)==0){
-                        return contador;
+                       return contador;
                     } else {
+                        system("cls");
                         cout << "Curso não encontrado!";
                     }
                 }
+                break;
+        }
+}
+
+
+void exibir_curso(int pos){
+    if(cont_curso==0){
+        cout<<"\nNão existem cursos cadastrados";
+    }
+    printf("\n--------Curso número %i---------------------------\n", pos+1);
+            cout<< " \nCOD: " << cursos[pos].COD;
+            cout << "\nNome: " << cursos[pos].nome;
+            cout<<"\n";
+}
+
+void exibir_funcionario(int pos) {
+    if(cont_funcionario==0){
+        cout<<"\nNão existem funcionários cadastrados";
+    }
+    printf("\n--------Funcionário número %i---------------------------\n", pos+1);
+            cout<< " \nMatrícula: " << funcionarios[pos].matricula_f;
+            cout << "\nNome: " << funcionarios[pos].nome;
+            cout << "\nUser: " << funcionarios[pos].user;
+            cout << "\nE-mail: " << funcionarios[pos].e_mail;
+            cout << "\nFone: " << funcionarios[pos].fone;
+           cout<<"\n";
+}
+
+void exibir_armario(int pos) {
+    if(cont_armario==0){
+        cout<<"\nNão existem armários cadastrados";
+    }
+    printf("\n--------Armário número %i---------------------------\n", pos+1);
+            cout << "\nNúmero: " << armarios[pos].num_armario;
+            cout<< " \nDisponível :" << armarios[pos].disponivel;
+            cout<< " \nEstado :" << armarios[pos].estado;
+            cout<<"\n";
+}
+
+void exibir_aluno(int pos) {
+    if(cont_aluno==0){
+        cout<<"\nNão existem alunos cadastrados";
+    }
+    printf("\n--------Aluno número %i---------------------------\n", pos+1);
+            cout << "\nMatrícula: " << alunos[pos].matricula_a;
+            cout << "\nNome: " << alunos[pos].nome;
+            cout << "\nEmail: " << alunos[pos].e_mail;
+            cout << "\nFone: " << alunos[pos].fone;
+            cout << "\nTurma: " << alunos[pos].turma;
+            cout<<"\n";
+}
+
+
+void exibir(int escolha){
+    int op=escolha, tipo=0, contador;
+    while(escolha!=5){
+    switch(escolha){
+    case 1:
+        while(tipo<1 || tipo>2){
+        cout<<"Como deseja exibir?\n\n1-TUDO\n2-SEPARADAMENTE\n:";
+        cin>>tipo;
+        }
+        if(tipo==1){
+            for(contador=0;contador<cont_funcionario;contador++){
+                exibir_funcionario(contador);
+                }
+            }else{
+                exibir_funcionario(buscar(op));
+            }
+            escolha=5;
+        break;
+    case 2:
+        while(tipo<1 || tipo>2){
+        cout<<"Como deseja exibir?\n\n1-TUDO\n2-SEPARADAMENTE\n:";
+        cin>>tipo;
+        }
+        if(tipo==1){
+            for(contador=0;contador<cont_aluno;contador++){
+                exibir_aluno(contador);
+            }
+            }else{
+                exibir_aluno(buscar(op));
+            }
+        escolha=5;
+        break;
+    case 3:
+         while(tipo<1 || tipo>2){
+          cout<<"Como deseja exibir?\n\n1-TUDO\n2-SEPARADAMENTE\n:";
+          cin>>tipo;
+        }
+        if(tipo==1){
+            for(contador=0;contador<cont_armario;contador++){
+                exibir_armario(contador);
+            }
+            }else{
+                exibir_armario(buscar(op));
+            }
+            escolha=5;
+        break;
+    case 4:
+        while(tipo<1 || tipo>2){
+        cout<<"Como deseja exibir?\n\n1-TUDO\n2-SEPARADAMENTE\n:";
+        cin>>tipo;
+        }
+        if(tipo==1){
+            for(contador=0;contador<cont_curso;contador++){
+                exibir_curso(contador);
+            }
+            }else{
+                exibir_curso(buscar(op));
+            }
+            escolha=5;
             break;
-            case 5:
-                system("cls");
-            break;
-            default:
-                cout << "Opção inválida! ";
-                system("pause");
-                system("cls");
-            break;
+          }
         }
-    }
-}
+ }
 
-void exibir_curso(){
-    if(cont_curso == 0) {
-        cout << "\nNão há cursos cadastrados!\n";
-    } else {
-        int cont;
-        for (cont = 0; cont < cont_curso; cont++){
-            cout<< " \nCOD: " << cursos[cont].COD;
-            cout << "\nNome: " << cursos[cont].nome;
-        }
-    }
-}
-
-void exibir_funcionario() {
-    if(cont_funcionario == 0) {
-        cout << "Não há funcionários cadastrados!";
-    } else {
-        int cont;
-        for (cont = 0; cont < cont_funcionario; cont++){
-            cout<< " \nMatrícula: " << funcionarios[cont].matricula_f;
-            cout << "\nNome: " << funcionarios[cont].nome;
-        }
-    }
-}
-
-void exibir_armario() {
-    if(cont_armario == 0) {
-        cout << "Não há armários cadastrados!";
-    } else {
-        int cont;
-        for (cont = 0; cont < cont_armario; cont++){
-            cout << "\nNúmero: " << armarios[cont].num_armario;
-            cout<< " \nDisponível :" << armarios[cont].disponivel;
-            cout<< " \nEstado :" << armarios[cont].estado;
-        }
-    }
-}
-
-void exibir_aluno() {
-    if(cont_alunos == 0) {
-        cout << "Não há alunos cadastrados!";
-    } else {
-        int cont;
-        for (cont = 0; cont < cont_alunos; cont++){
-            cout << "\nMatrícula: " << alunos[cont].matricula_a;
-            cout<< " \nNome :" << alunos[cont].nome;
-            cout<< " \nTurma :" << alunos[cont].turma;
-        }
-    }
-}
 
 void escolher_curso(){
+    int cont;
     cout<<"\nLISTA DE CURSOS CADASTRADOS:";
-    exibir_curso();
-    cout<<"\nEscolha o COD correspondente:";
+    for(cont=0;cont<cont_curso;cont++){
+    exibir_curso(cont);
+    }
+    cout<<"\nEscolha o COD correspondente\n:";
     fflush(stdin);
-    gets(a_cursos[cont_alunos].cod_curso);
+    gets(a_cursos[cont_aluno].cod_curso);
 }
 
 
 void cadastrar_aluno(){
-    fflush(stdin);
     cout<<"\t---CADASTRO DE ALUNO---: ";
     cout<<"\nNome:";
-    gets(alunos[cont_alunos].nome);
+    scanf(" %[^\n]",alunos[cont_aluno].nome);
     cout<<"\nMatrícula: ";
-    gets(alunos[cont_alunos].matricula_a);
-    strcpy(a_cursos[cont_alunos].matricula,alunos[cont_alunos].matricula_a);
+    scanf(" %[^\n]",alunos[cont_aluno].matricula_a);
+    strcpy(a_cursos[cont_aluno].matricula,alunos[cont_aluno].matricula_a);
     cout<<"\nTurma:";
-    gets(alunos[cont_alunos].turma);
+    scanf(" %[^\n]",alunos[cont_aluno].turma);
     cout<<"\nFone para contato: ";
-    gets(alunos[cont_alunos].fone);
+    scanf(" %[^\n]",alunos[cont_aluno].fone);
     cout<<"\nE-mail: ";
-    gets(alunos[cont_alunos].e_mail);
+    scanf(" %[^\n]",alunos[cont_aluno].e_mail);
     cout<<"\nAno de entrada no curso: ";
-    cin>>a_cursos[cont_alunos].inicio.ano;
+    cin>>a_cursos[cont_aluno].inicio.ano;
     cout<<"\nAno previsto de término do curso:";
-    cin>>a_cursos[cont_alunos].fim.ano;
+    cin>>a_cursos[cont_aluno].fim.ano;
     if(cont_curso == 0) {
         printf("\nAinda não existem cursos cadastrados, cadastre um novo curso \n");
         cadastrar_curso();
     }
     escolher_curso();
     cout<<"\nAno cursado: ";
-    cin>>a_cursos[cont_alunos].ano;
+    cin >>a_cursos[cont_aluno].ano;
+
+    reservar_armario(alunos[cont_aluno].matricula_a, funcionarios[buscar(1)].matricula_f);
     cout<<"\n\tALUNO CADASTRADO!!";
-    cont_alunos++;
+    cont_aluno++;
 
 }
 
+void cadastrar(int op_c){
+    while(op_c!=5){
+    switch(op_c){
+    case 1:
+        cadastrar_funcionario();
+        op_c=5;
+    break;
+    case 2:
+        cadastrar_aluno();
+        op_c=5;
+        break;
+    case 3:
+        cadastrar_armario();
+        op_c=5;
+        break;
+    case 4:
+        cadastrar_curso();
+        op_c=5;
+    break;
+    }
+  }
+}
 
 void armarios_disponiveis() {
-    cout << "Armários disponíveis: \n";
+    if(cont_armario==0){
+        cout<<"\nNão existem armários cadastrados";
+    }
     for(int i = 0; i <= cont_armario; i++) {
+        printf("\n--------Armário número %i---------------------------\n", i+1);
         cout << "Número: " << armarios[i].num_armario;
         cout << "\nDisponível: " << armarios[i].disponivel;
         cout << "\nEstado: " << armarios[i].estado;
@@ -302,7 +621,7 @@ void exibir_termo_compromisso() {
 
     //Testando abertura do arquivo
     if(pont_arq == NULL) {
-        printf("\n\nErro: O arquivo termo_compromisso.txt não pode ser abreto\n");
+        printf("\n\nErro: O arquivo termo_compromisso.txt não pode ser aberto\n");
         exit(1); //Saindo do programa
     }
     //Faça
@@ -326,75 +645,233 @@ void menuAluno() {
         case 1:
             system("cls");
             armarios_disponiveis();
+            system("pause");
             break;
         case 2:
             system("cls");
             exibir_termo_compromisso();
+            system("pause");
             break;
         case 3:
             system("cls");
             //verAvisos();
+            system("pause");
             break;
         case 4:
             system("cls");
+            system("pause");
             break;
         default:
             cout << "Opção inválida! ";
+            system("pause");
             break;
         }
     }
+}
+
+void excluir_armario(int pos) {
+    int i;
+    for(int i = pos; i <=cont_armario; i++) {
+            if(i==799){
+            armarios[i].num_armario=0;
+            strcpy(armarios[i].estado, "");
+            strcpy(armarios[i].disponivel, "");
+        }
+        else{
+           armarios[i] = armarios[i+1];
+        }
+    }
+    cout << "Armário excluído com sucesso!";
+    cont_armario--;
+}
+
+void excluir_curso(int pos) {
+    int i;
+    for(int i = pos; i <= cont_curso; i++) {
+            if(i==9){
+            strcpy(cursos[i].nome, "");
+            strcpy(cursos[i].COD, "");
+        }
+        else{
+           cursos[i] = cursos[i+1];
+        }
+    }
+    cout << "Curso excluído com sucesso!";
+}
+
+void excluir_aluno(int pos) {
+    int i;
+    for(int i = pos; i <= cont_aluno; i++) {
+            if(i==999){
+            strcpy(alunos[i].matricula_a, "");
+            strcpy(alunos[i].nome, "");
+            strcpy(alunos[i].e_mail, "");
+            strcpy(alunos[i].fone, "");
+            strcpy(alunos[i].turma, "");
+        }
+        else{
+           alunos[i] = alunos[i+1];
+        }
+    }
+    cout << "Aluno excluído com sucesso!";
+    cont_aluno--;
+}
+
+void excluir_funcionario(int pos) {
+    int i;
+    for(int i = pos; i <= cont_funcionario; i++) {
+            if(i==4){
+            strcpy(funcionarios[i].matricula_f, "");
+            strcpy(funcionarios[i].nome, "");
+            strcpy(funcionarios[i].e_mail, "");
+            strcpy(funcionarios[i].senha, "");
+            strcpy(funcionarios[i].user, "");
+            strcpy(funcionarios[i].fone, "");
+            }else{
+            funcionarios[i]=funcionarios[i+1];
+            }
+    }
+    cout << "Funcionário excluído com sucesso!";
+    cont_funcionario--;
+}
+
+void excluir(int escolha){
+    int op=escolha;
+    while(escolha!=5){
+    switch(escolha){
+    case 1:
+        excluir_funcionario(buscar(op));
+        escolha=5;
+        break;
+    case 2:
+        excluir_aluno(buscar(op));
+        escolha=5;
+        break;
+    case 3:
+        excluir_armario(buscar(op));
+        escolha=5;
+        break;
+    case 4:
+        excluir_curso(buscar(op));
+        escolha=5;
+         break;
+
+    }
+  }
+}
+
+void alterar(int escolha){
+    int op=escolha;
+    int pos= buscar(escolha);
+    switch(op){
+        case 1:
+        cout<<"\t---RECADASTRO DE FUNCIONÁRIO---:";
+        cout<<"\nNome: ";
+        scanf(" %[^\n]",funcionarios[pos].nome);
+        cout<<"\nMatrícula: ";
+        scanf(" %[^\n]",funcionarios[pos].matricula_f);
+        cout<<"\nUsuário: ";
+        scanf(" %[^\n]",funcionarios[pos].user);
+        cout<<"\nE-mail: ";
+        scanf(" %[^\n]",funcionarios[pos].e_mail);
+        cout<<"\nFone: ";
+        scanf(" %[^\n]",funcionarios[pos].fone);
+        cout<<"\nSenha de acesso\tOBS:(Lembre-se da senha informada!)\t(Max:30 caracteres)\n";
+        scanf(" %[^\n]",funcionarios[pos].senha);
+        cout<<"\n\tFUNCIONÁRIO RECADASTRADO!!";
+          break;
+        case 2:
+        cout<<"\t---RECADASTRO DE ALUNO---: ";
+        cout<<"\nNome:";
+        scanf(" %[^\n]",alunos[pos].nome);
+        cout<<"\nMatrícula: ";
+        scanf(" %[^\n]",alunos[pos].matricula_a);
+        strcpy(a_cursos[pos].matricula,alunos[pos].matricula_a);
+        cout<<"\nTurma:";
+        scanf(" %[^\n]",alunos[pos].turma);
+        cout<<"\nFone para contato: ";
+        scanf(" %[^\n]",alunos[pos].fone);
+        cout<<"\nE-mail: ";
+        scanf(" %[^\n]",alunos[pos].e_mail);
+        cout<<"\nAno de entrada no curso: ";
+        cin>>a_cursos[pos].inicio.ano;
+        cout<<"\nAno previsto de término do curso:";
+        cin>>a_cursos[pos].fim.ano;
+        if(cont_curso == 0) {
+        printf("\nAinda não existem cursos cadastrados, cadastre um novo curso \n");
+        cadastrar_curso();
+        }
+        escolher_curso();
+        cout<<"\nAno cursado: ";
+        cin >>a_cursos[pos].ano;
+        cout<<"\n\tALUNO RECADASTRADO!!";
+            break;
+          case 3:
+        cout<<"\t---RECADASTRO DE ARMÁRIO---: ";
+        cout<<"\nEstado: ";
+        scanf(" %[^\n]",armarios[pos].estado);
+        cout<<"\nDisponível? [S] Sim [N] Não\n";
+        scanf(" %[^\n]",armarios[pos].disponivel);
+        cout<<"\nNúmero: ";
+        cin>>armarios[pos].num_armario;
+        cout<<"\n\tARMÁRIO RECADASTRADO!!";
+            break;
+           case 4:
+        cout<<"\n\t---RECADASTRO DE CURSO---:";
+        cout<<"\nNome: ";
+        scanf(" %[^\n]",cursos[pos].nome);
+        cout<<"\nCódigo: ";
+        scanf(" %[^\n]",cursos[pos].COD);
+        cout<<"\n\tCURSO RECADASTRADO!!";
+        gravar_curso_arquivo();
+            break;
+        }
 }
 
 void menuFuncionario() {
     int opcao;
-    while(opcao != 13) {
+    if(cont_funcionario == 0) {
+        cadastrar_funcionario();
+    }
+    while(opcao != 0) {
         system("cls");
         cout << "Bem vindo funcionário\n";
         cout << "\nO que você quer fazer? ";
-        cout << "\nCadastrar aluno [1] \nCadastrar funcionário [2]\nCadastrar armário [3] \nCadastrar curso [4]\n";
-        cout << "Excluir aluno [5] \nExcluir funcionário [6] \nExcluir armário [7] \nExcluir curso [8] ";
-        cout << "Editar aluno [9] \nEditar funcionário [10] \nEditar armário [11] \nEditar curso [12] \nVoltar [13]\n";
+        cout << "\nVoltar [0] \nCadastrar[1]\nExcluir [2]\nAlterar[3]\nExibir[4]\n:";
        scanf("%d", &opcao);
         switch(opcao) {
+        case 0:
+            system("cls");
+            cout << "Voltando ao menu principal...\n";
+            system("pause");
+            break;
         case 1:
-            cadastrar_aluno();
+            system("cls");
+            cout<<"\n\tO que quer cadastrar?";
+            cadastrar(pergunta());
+            cout << "\n";
+            system("pause");
             break;
         case 2:
-            cadastrar_funcionario();
+            system("cls");
+            cout<<"\n\tO que quer excluir?";
+            excluir(pergunta());
+            cout << "\n";
+            system("pause");
             break;
         case 3:
-            cadastrar_armario();
+            system("cls");
+            cout<<"\n\tO que quer alterar?";
+            alterar(pergunta());
+            cout << "\n";
+            system("pause");
             break;
         case 4:
-            cadastrar_curso();
-            break;
-        case 5:
-            buscar();
-            //excluir_aluno();
-            break;
-        case 6:
-            //excluir_funcionario();
-            break;
-        case 7:
-            //excluir_armario();
-            break;
-        case 8:
-            //excluir_curso();
-            break;
-        case 9:
-            //editar_aluno();
-            break;
-        case 10:
-            //editar_funcionario();
-            break;
-        case 11:
-            //editar_armario();
-            break;
-        case 12:
-            //editar_curso();
-            break;
-        case 13:
-            cout << "Voltando ao menu principal...";
+            system("cls");
+            cout<<"\n\tO que quer exibir?";
+            exibir(pergunta());
+            cout << "\n";
+            system("pause");
             break;
         default:
             cout << "Opção inválida! ";
@@ -402,14 +879,13 @@ void menuFuncionario() {
         }
     }
 }
-
 
 void menu(){
     int opcao;
     while(opcao != 3) {
         system("cls");
         cout << "\nQuem está acessando? ";
-        cout << "\nAluno [1] \nFuncionário [2]\nSair [3] \n";
+        cout << "\nAluno [1] \nFuncionário [2]\nSair [3]\n:";
        scanf("%d", &opcao);
        //getchar();
         switch(opcao) {
@@ -433,6 +909,14 @@ void menu(){
 
 int main() {
     setlocale( LC_ALL, "portuguese" );
+    cout << "Lendo dados dos arquivos aguarde...";
+    ler_funcionario_arquivo();
+    ler_aluno_arquivo();
+    ler_armario_arquivo();
+    ler_curso_arquivo();
     menu();
-
+    gravar_aluno_arquivo();
+    gravar_armario_arquivo();
+    gravar_curso_arquivo();
+    gravar_funcionario_arquivo();
 }
