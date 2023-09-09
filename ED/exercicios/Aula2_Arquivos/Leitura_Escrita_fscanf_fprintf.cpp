@@ -8,7 +8,7 @@ using namespace std;
 
 int main() {
     setlocale(LC_ALL, "Portuguese");
-    //Criando uma vari·vel ponteiro para o arquivo
+    //Criando uma vari√°vel ponteiro para o arquivo
     FILE *pont_arq;
     char nome[100], n[100], espaco[2] = " ";
     int idade, i, tamString;
