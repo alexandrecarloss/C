@@ -65,10 +65,9 @@ Aluno alunos[TAMALUNOS];
 int cont_funcionario, cont_armario, cont_reserva, cont_curso, cont_aluno;
 //Funções
 
-
 void ler_aluno_arquivo() {
     FILE *pont_arq;
-    int tamString, i, cont = 0;
+    int i, cont = 0;
     pont_arq = fopen("aluno.txt", "r");
     if(pont_arq){
          //printf("\nDados lidos do arquivo aluno.txt:\n");
@@ -112,7 +111,6 @@ void gravar_aluno_arquivo() {
         printf("\nERRO ao abrir arquivo!\n");
     }
 }
-
 
 void ler_funcionario_arquivo() {
     FILE *pont_arq;
@@ -161,7 +159,6 @@ void gravar_funcionario_arquivo() {
     }
 }
 
-
 void ler_armario_arquivo() {
     FILE *pont_arq;
     int cont = 0, i;
@@ -194,7 +191,6 @@ void gravar_armario_arquivo() {
         printf("\nERRO ao abrir arquivo!\n");
     }
 }
-
 
 void ler_curso_arquivo() {
     FILE *pont_arq;
@@ -338,17 +334,40 @@ void reservar_armario(char matAluno[TAMPKEY], char matFunc[TAMPKEY]){
     int cont;
     strcpy(reservas[cont_reserva].mat_funcionario, matFunc);
     strcpy(reservas[cont_reserva].mat_aluno, matAluno);
-
-    cout<<"\nQual o código dessa reserva: " << endl;
-    gets(reservas[cont_reserva].cod_reserva);
+    int sair = 0;
+    char pkey[TAMPKEY];
+    while(sair != 1) {
+        cout<<"\nQual o código dessa reserva: " << endl;
+        scanf(" %[^\n]", pkey);
+        for(int contador = 0; contador <= cont_reserva; contador++){
+            if(strcmp(reservas[contador].cod_reserva, pkey)!=0){
+                if(contador == cont_reserva) {
+                   strcpy(reservas[contador].cod_reserva, pkey);
+                }
+                sair = 1;
+            } else {
+                cout << "Código já existe!";
+                sair = 0;
+                break;
+            }
+        }
+    }
     reservas[cont_reserva].numero_armario = cont_aluno;
-    for(cont=0;cont<cont_aluno;cont++){
-        if(reservas[cont_reserva].mat_aluno==a_cursos[cont].matricula){
+    for(cont=0;cont<=cont_aluno;cont++){
+        if(strcmp(reservas[cont_reserva].mat_aluno, a_cursos[cont].matricula) == 0){
             reservas[cont_reserva].data_rec=a_cursos[cont].inicio;
             reservas[cont_reserva].data_dev=a_cursos[cont].fim;
         }
      }
-
+    /*
+     cout << "\nreserva: " << reservas[cont_reserva].cod_reserva;
+    cout << "\nmat_aluno: " << reservas[cont_reserva].mat_aluno;
+    cout << "\nmat_func: " << reservas[cont_reserva].mat_funcionario;
+    cout << "\ndatadev: " << reservas[cont_reserva].data_dev.ano;
+    cout << "\ndetarec: " << reservas[cont_reserva].data_rec.ano;
+    cout << "\nnum armario: " << reservas[cont_reserva].numero_armario;
+    system("pause");
+    */
     cout<<"\n\tARMÁRIO RESERVADO!!";
 }
 
@@ -381,7 +400,6 @@ int pergunta(){
             }
     }
 }
-
 
 int buscar(int opcao) {
     int arm_busc, contador, para = 0;
@@ -438,7 +456,6 @@ int buscar(int opcao) {
     }
 }
 
-
 void exibir_curso(int pos){
     if(cont_curso==0){
         cout<<"\nNão existem cursos cadastrados";
@@ -486,7 +503,6 @@ void exibir_aluno(int pos) {
             cout << "\nTurma: " << alunos[pos].turma;
             cout<<"\n";
 }
-
 
 void exibir(int escolha){
     int op=escolha, tipo=0, contador;
@@ -568,8 +584,6 @@ void exibir(int escolha){
         }
  }
 
-
-
 void escolher_curso(){
     int cont;
     cout<<"\nLISTA DE CURSOS CADASTRADOS:";
@@ -580,7 +594,6 @@ void escolher_curso(){
     fflush(stdin);
     gets(a_cursos[cont_aluno].cod_curso);
 }
-
 
 void cadastrar_aluno(){
     cout<<"\t---CADASTRO DE ALUNO---: ";
@@ -624,9 +637,8 @@ void cadastrar_aluno(){
     cin >>a_cursos[cont_aluno].ano;
     if(cont_funcionario == 0) {
         cadastrar_funcionario();
-    } else {
-        reservar_armario(alunos[cont_aluno].matricula_a, funcionarios[buscar(1)].matricula_f);
     }
+    reservar_armario(alunos[cont_aluno].matricula_a, funcionarios[buscar(1)].matricula_f);
     cout<<"\n\tALUNO CADASTRADO!!";
     cont_aluno++;
 }
@@ -685,7 +697,6 @@ void exibir_termo_compromisso() {
      //Fechando arquivo
     fclose(pont_arq);
 }
-
 
 void menuAluno() {
     int opcao;
