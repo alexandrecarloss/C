@@ -19,7 +19,7 @@ void gotoXY(int x, int y);
    char professor[50],disciplina[50],turma[10];
    int opcao;
    char resp;
-   int linha,col, matTemp, cont_aluno;
+   int linha,col, matTemp;
 
    struct Aluno {
      int matricula;   /* numeros de 1 a no maximo 40 */
@@ -38,12 +38,12 @@ void gravarAluno(){
         if(inicio.pProx != NULL){
             pSal = inicio.pProx; /* aponta para o inicio da lista */
              while(pSal){
-                fprintf(pont_arq, "%p \n",  pSal->pProx);
-                fprintf(pont_arq, "%d \n", pSal->matricula);
-                fprintf(pont_arq, "%s \n",  pSal->nome);
-                fprintf(pont_arq, "%.2f \n",  pSal->notas[0]);
-                fprintf(pont_arq, "%.2f \n",  pSal->notas[1]);
-                fprintf(pont_arq, "%.2f \n",  pSal->notas[2]);
+                fprintf(pont_arq, "%d\n", pSal->matricula);
+                fprintf(pont_arq, "%s\n",  pSal->nome);
+                cout << pSal->nome << "Gravado";
+                fprintf(pont_arq, "%.2f\n",  pSal->notas[0]);
+                fprintf(pont_arq, "%.2f\n",  pSal->notas[1]);
+                fprintf(pont_arq, "%.2f\n",  pSal->notas[2]);
                 pSal = pSal->pProx;
              }
         }
@@ -56,18 +56,33 @@ void gravarAluno(){
 }
 
 /****************** FUNCAO LER ******************/
+/*
 void lerAluno(){
     FILE *pont_arq;
     pont_arq = fopen("aluno.txt", "r");
     if(pont_arq) {
-        if(pont_arq){
+    if(fscanf(pont_arq, "%c") != EOF) {
         pAux = &inicio;
         pAux->pProx = new Aluno;
         pAux = pAux->pProx;
-        while(fscanf(pont_arq, "%p%d%[^\n]%f%f%f", pAux->pProx, pAux->matricula, pAux->nome, pAux->notas[0], pAux->notas[1], pAux->notas[2]) != EOF) {
-            cout << "\n - " << pAux;
+        while(fscanf(pont_arq, "%d%s%f%f%f", &pAux->matricula, pAux->nome, &pAux->notas[0], &pAux->notas[1], &pAux->notas[2]) != EOF) {
+            for(int i = 0; i <= strlen(pAux->nome); i++) {
+                if(pAux->nome[i] == '_') {
+                    pAux->nome[i] = ' ';
+                }
+            }
+            cout << pAux->matricula;
+            cout << pAux->nome;
+            cout << pAux->notas[0];
+            cout << pAux->notas[1];
+            cout << pAux->notas[2];
+            pAnt = pAux;
+            pAux->pProx = new Aluno;
             pAux = pAux->pProx;
+            //break;
         }
+        pAux = pAnt;
+        pAux->pProx = NULL;
         system("pause");
         fclose(pont_arq);
     }
@@ -77,22 +92,29 @@ void lerAluno(){
         system("pause");
     }
 }
-/*
+*/
+
 void lerAluno(){
     FILE *pont_arq;
     pont_arq = fopen("aluno.txt", "r");
     int contarq = 0;
     char lido[500];
     if(pont_arq) {
+        pAux = &inicio;
         while(!feof(pont_arq)) {
             if(fgets(lido, 500, pont_arq)) {
                 cout << lido;
                 switch(contarq) {
                 case 0:
+                    pAux->pProx = new Aluno;
+                    pAux = pAux->pProx;
                     pAux->matricula = atoi(lido);
                     break;
                 case 1:
+                    char aux[50];
                     strcpy(pAux->nome, lido);
+                    pAux->nome[strlen(pAux->nome)-1] = NULL;
+                    cout << pAux->nome << "Lido";
                     break;
                 case 2:
                     pAux->notas[0] = atof(lido);
@@ -102,15 +124,14 @@ void lerAluno(){
                     break;
                 case 4:
                     pAux->notas[2] = atof(lido);
-                    break;
-                case 5:
-                    //pAux->pProx = lido;
+                    contarq = -1;
                     break;
                 }
                 contarq++;
             }
         }
-        cout << "\naluno: " << aluno.nome << aluno.ano_aluno;
+        pAux->pProx = NULL;
+        system("pause");
         fclose(pont_arq);
     }
     else {
@@ -118,7 +139,7 @@ void lerAluno(){
         system("pause");
     }
 }
-*/
+
 /****************** FUNCAO CABECALHO ******************/
 void cabecalho(){
    system("cls");
@@ -248,8 +269,7 @@ void inserir(){
      cin >> pAux->notas[1];
      pAux->notas[2] = (pAux->notas[0] + pAux->notas[1])/2;
      pAux->pProx = NULL;
-    gravarAluno();
-     cont_aluno++;
+     gravarAluno();
      cout << "\nContinuar inserindo dados? Sim[S] Nao[outra tecla]---->";
      cin >> resp;
      resp = toupper(resp);
@@ -362,15 +382,12 @@ SetConsoleCursorPosition(console,CursorPosition); // Sets position for next thin
 
 /****************** FUNCAO PRINCIPAL ******************/
 int main(){
-
    int cont_tela=1;
-
    inicio.pProx = NULL; /* lista vazia */
     lerAluno();
    cabecalho();
    diario();
    cont_tela++;
-
  do{
 
    if (cont_tela > 1){
