@@ -40,7 +40,7 @@ void gravarAluno(){
              while(pSal){
                 fprintf(pont_arq, "%d\n", pSal->matricula);
                 fprintf(pont_arq, "%s\n",  pSal->nome);
-                cout << pSal->nome << "Gravado";
+                //cout << pSal->nome << "Gravado";
                 fprintf(pont_arq, "%.2f\n",  pSal->notas[0]);
                 fprintf(pont_arq, "%.2f\n",  pSal->notas[1]);
                 fprintf(pont_arq, "%.2f\n",  pSal->notas[2]);
@@ -56,44 +56,6 @@ void gravarAluno(){
 }
 
 /****************** FUNCAO LER ******************/
-/*
-void lerAluno(){
-    FILE *pont_arq;
-    pont_arq = fopen("aluno.txt", "r");
-    if(pont_arq) {
-    if(fscanf(pont_arq, "%c") != EOF) {
-        pAux = &inicio;
-        pAux->pProx = new Aluno;
-        pAux = pAux->pProx;
-        while(fscanf(pont_arq, "%d%s%f%f%f", &pAux->matricula, pAux->nome, &pAux->notas[0], &pAux->notas[1], &pAux->notas[2]) != EOF) {
-            for(int i = 0; i <= strlen(pAux->nome); i++) {
-                if(pAux->nome[i] == '_') {
-                    pAux->nome[i] = ' ';
-                }
-            }
-            cout << pAux->matricula;
-            cout << pAux->nome;
-            cout << pAux->notas[0];
-            cout << pAux->notas[1];
-            cout << pAux->notas[2];
-            pAnt = pAux;
-            pAux->pProx = new Aluno;
-            pAux = pAux->pProx;
-            //break;
-        }
-        pAux = pAnt;
-        pAux->pProx = NULL;
-        system("pause");
-        fclose(pont_arq);
-    }
-    }
-    else {
-        cout << "Erro ao ler arquivo!";
-        system("pause");
-    }
-}
-*/
-
 void lerAluno(){
     FILE *pont_arq;
     pont_arq = fopen("aluno.txt", "r");
@@ -103,7 +65,7 @@ void lerAluno(){
         pAux = &inicio;
         while(!feof(pont_arq)) {
             if(fgets(lido, 500, pont_arq)) {
-                cout << lido;
+                //cout << lido;
                 switch(contarq) {
                 case 0:
                     pAux->pProx = new Aluno;
@@ -113,8 +75,8 @@ void lerAluno(){
                 case 1:
                     char aux[50];
                     strcpy(pAux->nome, lido);
-                    pAux->nome[strlen(pAux->nome)-1] = NULL;
-                    cout << pAux->nome << "Lido";
+                    pAux->nome[strlen(pAux->nome)-1] = '\0';
+                    //cout << pAux->nome << "Lido";
                     break;
                 case 2:
                     pAux->notas[0] = atof(lido);
@@ -131,7 +93,7 @@ void lerAluno(){
             }
         }
         pAux->pProx = NULL;
-        system("pause");
+        //system("pause");
         fclose(pont_arq);
     }
     else {
@@ -188,9 +150,52 @@ void diario(){
 
 }
 
+/********************* FUNCAO BUSCAR MATRICULA *******************/
+Aluno buscar() {
+    do{
+        resp = '0';
+        system("cls");
+        if(inicio.pProx == NULL) {
+            gotoXY(15,18);
+            cout << "ATENCAO: Alunos inexistentes! ";
+            system("pause");
+        } else {
+            gotoXY(1,2);
+            cout << "*  Matricula:                                                       *";
+            gotoXY(1,3);
+            cout << "*********************************************************************";
+            gotoXY(15,2);
+            cin >> matTemp;
+            pAux = &inicio;
+            while(pAux->matricula!=matTemp && pAux->pProx!=NULL){
+                pAnt=pAux;
+                pAux = pAux->pProx;
+            }
+        }
+        if(pAux->matricula==matTemp){
+            return *pAux;
+        } else {
+        gotoXY(1,4);
+        cout << "Matricula inexistente";
+        system("pause");
+        pAnt = NULL;
+        pAux = NULL;
+      }
+        gotoXY(3,5);
+        cout << "Continuar buscando matricula? Sim[S] Nao[outra tecla]---->";
+        cin >> resp;
+        resp = toupper(resp);
+    }while (resp == 'S');
+}
 
 /********************* FUNCAO EXIBIR *******************/
 void exibir(){
+    int op;
+
+    Aluno c = buscar();
+    gotoXY(1,4);
+    cout << c.nome;
+    system("pause");
   if(inicio.pProx != NULL){
      pAux = inicio.pProx; /* aponta para o inicio da lista */
      system("cls");
@@ -275,6 +280,7 @@ void inserir(){
      resp = toupper(resp);
    }while (resp == 'S');
 }
+
 /********************* FUNCAO REMOVER *******************/
 void remover(){
   do{
@@ -303,6 +309,7 @@ void remover(){
       pAnt = NULL;
       delete pAux;
     }
+    gravarAluno();
   }
   else{
     gotoXY(20,2);
@@ -321,7 +328,6 @@ void remover(){
 /********************* FUNCAO INSERIR EM ORDEM *******************/
 void inserirOrdem(){
    Aluno *pMenor,*pMaior;
-
    do{
      pMaior = &inicio; /* aponta para o inicio da lista */
      pMenor = pMaior;
@@ -367,6 +373,7 @@ void inserirOrdem(){
           pAux->pProx = pMaior;
         }
      }
+     gravarAluno();
      cout << "\nContinuar inserindo dados? Sim[S] Nao[outra tecla]---->";
      cin >> resp;
      resp = toupper(resp);
@@ -384,12 +391,11 @@ SetConsoleCursorPosition(console,CursorPosition); // Sets position for next thin
 int main(){
    int cont_tela=1;
    inicio.pProx = NULL; /* lista vazia */
-    lerAluno();
+   lerAluno();
    cabecalho();
    diario();
    cont_tela++;
  do{
-
    if (cont_tela > 1){
      cabecalho();
      menu();
@@ -414,9 +420,7 @@ int main(){
        cout << "ATENCAO: Opcao Invalida! ";
 	   system("pause");
      }
-
  }while (opcao != 0);
-
  return 0;
 }
 
