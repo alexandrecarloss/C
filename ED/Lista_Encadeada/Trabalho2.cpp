@@ -8,6 +8,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <windows.h>
+#include <locale.h>
 
 using namespace std;
 
@@ -125,12 +126,14 @@ void menu(){
    gotoXY(col,14);
    cout << "*      Inserir em Ordem...[4]       *";
    gotoXY(col,15);
-   cout << "*      Sair...............[0]       *";
+   cout << "*      Retificação........[5]       *";
    gotoXY(col,16);
-   cout << "*      Digite a opcao:              *";
+   cout << "*      Sair...............[0]       *";
    gotoXY(col,17);
+   cout << "*      Digite a opcao:              *";
+   gotoXY(col,18);
    cout << "*************************************";
-   gotoXY(42,16);
+   gotoXY(42,17);
    cin >> opcao;
 }
 
@@ -151,20 +154,20 @@ void diario(){
 }
 
 /********************* FUNCAO BUSCAR MATRICULA *******************/
-Aluno buscar() {
+Aluno* buscar() {
+    //Se encontrar retorna o ponteiro para estrutura da matrícula equivalente, senão, retorna uma estrutura null
     do{
         resp = '0';
-        system("cls");
         if(inicio.pProx == NULL) {
-            gotoXY(15,18);
+            gotoXY(4,4);
             cout << "ATENCAO: Alunos inexistentes! ";
             system("pause");
         } else {
-            gotoXY(1,2);
+            gotoXY(3,1);
             cout << "*  Matricula:                                                       *";
-            gotoXY(1,3);
+            gotoXY(3,2);
             cout << "*********************************************************************";
-            gotoXY(15,2);
+            gotoXY(17,1);
             cin >> matTemp;
             pAux = &inicio;
             while(pAux->matricula!=matTemp && pAux->pProx!=NULL){
@@ -173,70 +176,110 @@ Aluno buscar() {
             }
         }
         if(pAux->matricula==matTemp){
-            return *pAux;
+            return pAux;
         } else {
-        gotoXY(1,4);
+        gotoXY(3,6);
         cout << "Matricula inexistente";
         system("pause");
-        pAnt = NULL;
-        pAux = NULL;
       }
-        gotoXY(3,5);
+        gotoXY(3,7);
         cout << "Continuar buscando matricula? Sim[S] Nao[outra tecla]---->";
         cin >> resp;
         resp = toupper(resp);
+        system("cls");
     }while (resp == 'S');
+    pAux = NULL;
+    return pAux;
+}
+
+/********************* FUNCAO VALIDAR MATRICULA *******************/
+int validarMat(int mat) {
+    pLer = &inicio;
+    while(pLer->matricula!=mat && pLer->pProx!=NULL){
+        pAnt=pLer;
+        pLer = pLer->pProx;
+    }
+    if(pLer->pProx!=NULL){
+        return 0;
+    } else {
+        return 1;
+    }
+}
+
+/********************* FUNCAO EXIBIR CABEÇALHO *******************/
+void cabecalhoExibir() {
+    gotoXY(1,5);
+    cout << "********************************  DIARIO *********************************";
+    gotoXY(1,7);
+    cout << "Professor: " << professor;
+    gotoXY(1,8);
+    cout << "Disciplina: " << disciplina;
+    gotoXY(1,9);
+    cout << "Turma: " << turma;
+    cout << "\n---------------------------------------------------------------------------";
+    gotoXY(1,linha);
+    cout << "Matricula";
+    gotoXY(15,linha);
+    cout << "Nome";
+    gotoXY(50,linha);
+    cout << "Nota1";
+    gotoXY(60,linha);
+    cout << "Nota2";
+    gotoXY(70,linha);
+    cout << "Media";
+    linha=13;
+    cout << "\n---------------------------------------------------------------------------";
+}
+
+/********************* FUNCAO EXIBIR DADO *******************/
+void dadoExibir(Aluno *aluno) {
+    gotoXY(1,linha);
+    cout << pAux->matricula;
+    gotoXY(15,linha);
+    cout << pAux->nome;
+    gotoXY(50,linha);
+    cout <<  pAux->notas[0];
+    gotoXY(60,linha);
+    cout << pAux->notas[1];
+    gotoXY(70,linha);
+    cout << pAux->notas[2];
 }
 
 /********************* FUNCAO EXIBIR *******************/
-void exibir(){
-    int op;
-
-    Aluno c = buscar();
-    gotoXY(1,4);
-    cout << c.nome;
-    system("pause");
+void exibir() {
   if(inicio.pProx != NULL){
-     pAux = inicio.pProx; /* aponta para o inicio da lista */
-     system("cls");
-     gotoXY(1,5);
-     cout << "********************************  DIARIO *********************************";
-     gotoXY(1,7);
-     cout << "Professor: " << professor;
-     gotoXY(1,8);
-     cout << "Disciplina: " << disciplina;
-     gotoXY(1,9);
-     cout << "Turma: " << turma;
-     linha=11;
-     cout << "\n---------------------------------------------------------------------------";
-     gotoXY(1,linha);
-     cout << "Matricula";
-     gotoXY(15,linha);
-     cout << "Nome";
-     gotoXY(50,linha);
-     cout << "Nota1";
-     gotoXY(60,linha);
-     cout << "Nota2";
-     gotoXY(70,linha);
-     cout << "Media";
-     linha=13;
-     cout << "\n---------------------------------------------------------------------------";
-     while(pAux){
-       gotoXY(1,linha);
-       cout << pAux->matricula;
-       gotoXY(15,linha);
-       cout << pAux->nome;
-       gotoXY(50,linha);
-       cout <<  pAux->notas[0];
-       gotoXY(60,linha);
-       cout << pAux->notas[1];
-       gotoXY(70,linha);
-       cout << pAux->notas[2];
-       pAux = pAux->pProx;
-       linha++;
-     }
-    cout << "\n---------------------------------------------------------------------------\n";
-    system("pause");
+    resp = '0';
+    system("cls");
+    gotoXY(0,0);
+    cout << "********************************  EXIBIR *********************************\n";
+    gotoXY(3,1);
+    cout << "Como deseja exibir?  Apenas um[1] Tudo[outra tecla] ";
+    cin >> resp;
+    linha=11;
+    if(resp == '1') {
+        system("cls");
+        gotoXY(0,0);
+        cout << "********************************  EXIBIR *********************************\n";
+        Aluno *aluno = buscar();
+        if(aluno != NULL){
+            cabecalhoExibir();
+            dadoExibir(aluno);
+            cout << "\n---------------------------------------------------------------------------\n";
+        }
+
+        system("pause");
+    } else {
+         pAux = inicio.pProx; /* aponta para o inicio da lista */
+         system("cls");
+         cabecalhoExibir();
+         while(pAux){
+           dadoExibir(pAux);
+           pAux = pAux->pProx;
+           linha++;
+         }
+         cout << "\n---------------------------------------------------------------------------\n";
+         system("pause");
+    }
   }
   else{
     gotoXY(15,18);
@@ -244,27 +287,110 @@ void exibir(){
 	system("pause");
   }
 }
+
+/********************* FUNCAO ATUALIZAR *******************/
+void atualizar() {
+    if(inicio.pProx != NULL){
+    int op;
+    system("cls");
+    cout << "********************************  RETIFICAÇÃO *********************************\n";
+     Aluno *aluno = buscar();
+    if(aluno != NULL){
+        system("cls");
+        cout << "Qual campo deseja retificar \nMatricula[1] \nNome[2] \nNota 1[3] \nNota 2[4]\n";
+        cin >> op;
+        cout << "\n---------------------------------------------------------------------------\n";
+        switch(op){
+        case 1:
+            system("cls");
+            gotoXY(1,2);
+            cout << "*  Matricula:                                                       *";
+            gotoXY(20,2);
+            cin >> matTemp;
+            if(validarMat(matTemp)){
+                aluno->matricula = matTemp;
+            } else {
+                cout << "Matrícula já existe!";
+                system("pause");
+            }
+            break;
+        case 2:
+            system("cls");
+            gotoXY(1,2);
+            printf("*  Nome do Aluno:                                                   *");
+            gotoXY(20,2);
+            fflush(stdin);
+            gets(aluno->nome);
+            break;
+        case 3:
+            system("cls");
+            gotoXY(1,2);
+            cout << "*  Nota1:                                                           *";
+            gotoXY(20,2);
+            cin >> aluno->notas[0];
+            aluno->notas[2] = (aluno->notas[0] + aluno->notas[1])/2;
+            break;
+        case 4:
+            system("cls");
+            gotoXY(1,2);
+            cout << "*  Nota2:                                                           *";
+            gotoXY(20,2);
+            cin >> aluno->notas[1];
+            aluno->notas[2] = (aluno->notas[0] + aluno->notas[1])/2;
+            break;
+        default:
+            cout << "Opção inválida!";
+            break;
+        }
+    }
+    gravarAluno();
+    system("pause");
+    } else{
+    gotoXY(15,18);
+    cout << "ATENCAO: Alunos inexistentes! ";
+	system("pause");
+  }
+}
+
+/********************* FUNCAO INSERIR CABEÇALHO *******************/
+void inserirCabecalho() {
+    cout << "************************* CADASTRO DE ALUNO *************************";
+    gotoXY(1,2);
+    cout << "*  Matricula:                                                       *";
+    gotoXY(1,3);
+    printf("*  Nome do Aluno:                                                   *");
+    gotoXY(1,4);
+    cout << "*  Nota1:                                                           *";
+    gotoXY(1,5);
+    cout << "*  Nota2:                                                           *";
+    cout << "\n*********************************************************************";
+}
+
 /********************* FUNCAO INSERIR *******************/
 void inserir(){
+   resp = '0';
    pAux = &inicio; /* aponta para o inicio da lista */
    while(pAux->pProx)
      pAux = pAux->pProx;
    do{
      system("cls");
-     cout << "************************* CADASTRO DE ALUNO *************************";
-     pAux->pProx = new Aluno;
-     pAux = pAux->pProx;
-     gotoXY(1,2);
-     cout << "*  Matricula:                                                       *";
-     gotoXY(1,3);
-     printf("*  Nome do Aluno:                                                   *");
-     gotoXY(1,4);
-     cout << "*  Nota1:                                                           *";
-     gotoXY(1,5);
-     cout << "*  Nota2:                                                           *";
-     cout << "\n*********************************************************************";
-     gotoXY(20,2);
-     cin >> pAux->matricula;
+
+     inserirCabecalho();
+     while(true){
+        system("cls");
+        inserirCabecalho();
+        gotoXY(20,2);
+        cin >> matTemp;
+        if(validarMat(matTemp)){
+            pAux->pProx = new Aluno;
+            pAux = pAux->pProx;
+            pAux->matricula = matTemp;
+            break;
+        } else {
+            cout << "Matrícula já existe!";
+            system("pause");
+        }
+     }
      gotoXY(20,3);
      fflush(stdin);
 	 gets(pAux->nome);
@@ -283,6 +409,7 @@ void inserir(){
 
 /********************* FUNCAO REMOVER *******************/
 void remover(){
+  if(inicio.pProx != NULL){
   do{
   resp = '0';
   system("cls");
@@ -323,6 +450,11 @@ void remover(){
    cin >> resp;
    resp = toupper(resp);
  }while (resp == 'S');
+ } else{
+    gotoXY(15,18);
+    cout << "ATENCAO: Alunos inexistentes! ";
+	system("pause");
+ }
 }
 
 /********************* FUNCAO INSERIR EM ORDEM *******************/
@@ -344,7 +476,21 @@ void inserirOrdem(){
      cout << "*  Nota2:                                                           *";
      cout << "\n*********************************************************************";
      gotoXY(20,2);
-     cin >> pAux->matricula;
+     while(true){
+        system("cls");
+        inserirCabecalho();
+        gotoXY(20,2);
+        cin >> matTemp;
+        if(validarMat(matTemp)){
+            pAux->pProx = new Aluno;
+            pAux = pAux->pProx;
+            pAux->matricula = matTemp;
+            break;
+        } else {
+            cout << "Matrícula já existe!";
+            system("pause");
+        }
+     }
      gotoXY(20,3);
      fflush(stdin);
      gets(pAux->nome);
@@ -389,6 +535,7 @@ SetConsoleCursorPosition(console,CursorPosition); // Sets position for next thin
 
 /****************** FUNCAO PRINCIPAL ******************/
 int main(){
+   setlocale(LC_ALL, "Portuguese");
    int cont_tela=1;
    inicio.pProx = NULL; /* lista vazia */
    lerAluno();
@@ -415,6 +562,9 @@ int main(){
      case 4:
 	   inserirOrdem();
 	   break;
+     case 5:
+        atualizar();
+        break;
      default:
 	   gotoXY(15,18);
        cout << "ATENCAO: Opcao Invalida! ";
