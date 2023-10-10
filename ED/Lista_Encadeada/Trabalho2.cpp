@@ -199,7 +199,7 @@ int validarMat(int mat) {
         pAnt=pLer;
         pLer = pLer->pProx;
     }
-    if(pLer->pProx!=NULL){
+    if(pLer->matricula==mat){
         return 0;
     } else {
         return 1;
@@ -464,17 +464,8 @@ void inserirOrdem(){
      pMaior = &inicio; /* aponta para o inicio da lista */
      pMenor = pMaior;
      system("cls");
-     cout << "************************* CADASTRO DE ALUNO *************************";
-     pAux = new Aluno;
-     gotoXY(1,2);
-     cout << "*  Matricula:                                                       *";
-     gotoXY(1,3);
-     printf("*  Nome do Aluno:                                                   *");
-     gotoXY(1,4);
-     cout << "*  Nota1:                                                           *";
-     gotoXY(1,5);
-     cout << "*  Nota2:                                                           *";
-     cout << "\n*********************************************************************";
+     pAux = new Aluno; //Novo espaço que vai receber os dados
+     inserirCabecalho();
      gotoXY(20,2);
      while(true){
         system("cls");
@@ -500,9 +491,9 @@ void inserirOrdem(){
      cin >> pAux->notas[1];
      pAux->notas[2] = (pAux->notas[0] + pAux->notas[1])/2;
      pAux->pProx = NULL;
-     if(pMaior->pProx == NULL){
-       pMaior->pProx = pAux;
-       pAux->pProx = NULL;
+     if(pMaior->pProx == NULL) { //pMaior é o final da lista
+       pMaior->pProx = pAux; //pProximo de pMaior vai receber pAux que é o que recebeu os dados
+       pAux->pProx = NULL; //pProximo de pAux vai ser null
      }
      else{
         pMaior = pMaior->pProx;
