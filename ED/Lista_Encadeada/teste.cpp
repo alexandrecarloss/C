@@ -14,14 +14,15 @@ struct Fruta {
 
 struct Dicionario {
      char inicial;
+     int quant, pos;
      struct Dicionario *pProx;
      struct Dicionario *pAnt;
      Fruta inicio_fruta;
 } inicio_dicio, *pAux_dicio, *pSal, *pAnt_dicio, *pbuscarLetra, dicio_temp;
 
 //************************Variáveis globais
-char palavra[40], letra,elemento[40], descricao_fruta[500];
-int cont_linha = 2, cont_fruta;
+char palavra[40], letra,elemento[40];
+int cont_linha = 1, cont_fruta;
 
 HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
 COORD CursorPosition;
@@ -140,11 +141,9 @@ void ler(){
 
 }//função onde devemos ordenar a partir do arquivo;
 
-
 /****************** FUNCAO INSERIR ******************/
 void inserir_fruta(){
     pAux_dicio = &inicio_dicio;
-    //Verifica inicial
     gotoxy(0, 1);
     cout << "Informe a fruta que deseja inserir: ";
     gotoxy(0, 2);
@@ -152,6 +151,7 @@ void inserir_fruta(){
     gotoxy(37, 1);
     fflush(stdin);
     gets(palavra);
+    //Verifica inicial
 
     while((pAux_dicio->pProx) && (toupper(pAux_dicio->inicial) != toupper(palavra[0]))){
         pAnt_dicio = pAux_dicio;
@@ -171,6 +171,7 @@ void inserir_fruta(){
     if(strcmp(pAux_fruta->nome, palavra) == 0) { //Palavra já inserida
         cout << "Fruta já inserida!";
     } else { //Cria espaço para nova fruta
+        pAux_dicio->quant++;
         pAux_fruta->pProx = new Fruta;
         pAux_fruta = pAux_fruta->pProx;
         strcpy(pAux_fruta->nome, palavra);
@@ -186,6 +187,7 @@ void inserir_fruta(){
 
 /****************** FUNCAO BUSCAR ******************/
 Fruta* buscar(){
+
     cout<<"Informe a fruta\n:";
     fflush(stdin);
     gets(elemento);
@@ -209,68 +211,15 @@ Fruta* buscar(){
     }
 }
 
-void excluir_inicial_parametro(Dicionario letra) {
-    if(pbuscarLetra->pProx) { //Não é o último da lista
-        if(pAnt_dicio != pbuscarLetra) { //Tem anterior
-            pAnt_dicio->pProx = pbuscarLetra->pProx;
-            delete pbuscarLetra;
-            pbuscarLetra = pAnt_dicio->pProx;
-            pbuscarLetra->pAnt = pAnt_dicio;
-        } else { //Não tem anterior
-            inicio_dicio.pProx = pbuscarLetra->pProx;
-            pbuscarLetra = inicio_dicio.pProx;
-            delete pAnt_dicio;
-            pbuscarLetra->pAnt = &inicio_dicio;
-        }
-    } else { //É o último da lista
-        if(inicio_dicio.pProx != pbuscarLetra) { // Tem anterior
-            pAnt_dicio->pProx = NULL;
-            pbuscarLetra = pAnt_dicio;
-        } else { //Não tem anterior
-            pbuscarLetra = &inicio_dicio;
-            pbuscarLetra->pProx = NULL;
-        }
-    }
-}
-
 /****************** FUNCAO EXCLUIR INICIAL ******************/
 void excluir_inicial(){
-    pbuscarLetra = &inicio_dicio;
-    cont_linha = 1;
-    cout << "Inicial: ";
-    cin >> letra;
-    while((pbuscarLetra->pProx) && (toupper(pbuscarLetra->inicial) != toupper(letra))){
-        pAnt_dicio = pbuscarLetra;
-        pbuscarLetra = pbuscarLetra->pProx;
-    }
-    if(toupper(pbuscarLetra->inicial) != toupper(letra)) { //Inicial não encontrada
-        cout << "Essa inicial não existe!";
-        system("pause");
-    } else { //Inicial encontrada
-        if(pbuscarLetra->pProx) { //Não é o último da lista
-            if(pAnt_dicio != pbuscarLetra) { //Tem anterior
-                pAnt_dicio->pProx = pbuscarLetra->pProx;
-                delete pbuscarLetra;
-                pbuscarLetra = pAnt_dicio->pProx;
-                pbuscarLetra->pAnt = pAnt_dicio;
-            } else { //Não tem anterior
-                inicio_dicio.pProx = pbuscarLetra->pProx;
-                pbuscarLetra = inicio_dicio.pProx;
-                delete pAnt_dicio;
-                pbuscarLetra->pAnt = &inicio_dicio;
-            }
-        } else { //É o último da lista
-            if(inicio_dicio.pProx != pbuscarLetra) { // Tem anterior
-                pAnt_dicio->pProx = NULL;
-                pbuscarLetra = pAnt_dicio;
-            } else { //Não tem anterior
-                pbuscarLetra = &inicio_dicio;
-                pbuscarLetra->pProx = NULL;
-            }
-        }
-        cout << "Inicial excluída com sucesso!";
-        gravar();
-    }
+
+}
+
+
+/****************** FUNCAO EXCLUIR ******************/
+void menu_excluir(){
+
 }
 
 /****************** FUNCAO ALTERAR ******************/
@@ -288,75 +237,22 @@ void alterar(Fruta *achada){
 
 /****************** FUNCAO CABEÇALHO DE EXIBIR ******************/
 void cabecalhoExibir() {
-    cout<<"                       *******************FRUTAS DO DICIONÁRIO*********************";
     gotoxy(0, cont_linha);
-    cout << "----------------------------------------------------------------------------------------------------------------";
-    gotoxy(0, cont_linha+1);
-    cout << "|Nome ";
-    gotoxy(50, cont_linha+1);
+    cout << "Nome ";
+    gotoxy(20, cont_linha);
     cout << "| Descrição ";
-    gotoxy(111, cont_linha+1);
-    cout << "|";
-    gotoxy(0, cont_linha+2);
-    cout << "----------------------------------------------------------------------------------------------------------------";
-    cont_linha=cont_linha+2;
-}
-
-void cabecalhoExibirReferecia() {
-    cout<<"                         *******************BUSCAR POR RELEVÂNCIA*********************\n";
-    cout << "----------------------------------------------------------------------------------------------------------------";
     gotoxy(0, cont_linha+1);
-    cout << "|Qtd ";
-    gotoxy(6, cont_linha+1);
-    cout << "|Nome ";
-    gotoxy(50, cont_linha+1);
-    cout << "| Descrição";
-    gotoxy(111, cont_linha+1);
-    cout<<"|";
-    gotoxy(0, cont_linha+2);
-    cout << "----------------------------------------------------------------------------------------------------------------";
-    cont_linha=cont_linha+2;
+    cout << "-------------------------------------------------------";
+    cont_linha++;
 }
 
 /****************** FUNCAO EXIBIR FRUTA ******************/
-void exibir_fruta(Fruta *exibir, int qnt = 0){
-    char aux[500];
-    int qual, cont=0, cont2=1;
-    float quant;
+void exibir_fruta(Fruta *exibir){
+    gotoxy(0, cont_linha+1);
+    cout << exibir->nome;
+    gotoxy(20, cont_linha+1);
+    cout << "| " << exibir->descricao;
     cont_linha++;
-    if(qnt != 0) {
-        gotoxy(0, cont_linha);
-        cout << "|" << pAux_fruta->relevancia;
-        gotoxy(6, cont_linha);
-        cout << "|" << exibir->nome;
-    } else {
-        gotoxy(0, cont_linha);
-        cout << "|" << exibir->nome;
-    }
-    gotoxy(111, cont_linha);
-    cout << "|";
-    gotoxy(50, cont_linha);
-    cout << "|";
-    for(cont = 0; cont < strlen(exibir->descricao); cont++) {
-        cout << exibir->descricao[cont];
-        if((cont % 59 == 0) && (cont > 0)) {
-            cont_linha++;
-            if(qnt != 0) {
-                gotoxy(6, cont_linha);
-                cout << "|";
-            }
-            gotoxy(111, cont_linha);
-            cout << "|";
-            gotoxy(0, cont_linha);
-            cout << "|";
-            gotoxy(50, cont_linha);
-            cout << "|";
-            gotoxy(51, cont_linha);
-        }
-    }
-    cont_linha++;
-    gotoxy(0, cont_linha);
-    cout << "----------------------------------------------------------------------------------------------------------------";
 }
 
 /****************** FUNCAO EXIBIR INICIAL ******************/
@@ -382,7 +278,12 @@ void exibir_fruta(Fruta *exibir, int qnt = 0){
     }
  }
 
-/****************** FUNCAO LISTAR TODAS AS FRUTAS ******************/
+
+/****************** FUNCAO EXIBIR RELEVÂNCIA ******************/
+void exibir_relevancia(){//exibir fruta por recorrencia de palavra na descrição
+
+}
+
 void listar_tudo(Dicionario exibir){
     cont_linha = 1;
     if(exibir.pProx) {
@@ -425,10 +326,9 @@ void excluir_fruta(){
                             encontrou = 1;
                             pAnt_fruta->pProx = pbuscarFruta->pProx;
                             delete pbuscarFruta;
-                            cont_fruta--;
                         }
                    }
-                   if(pbuscarLetra->inicio_fruta.pProx == NULL){ //nodo ficou sem frutas
+                   if(pbuscarLetra->inicio_fruta.pProx == NULL){
                         if(pbuscarLetra->pProx) { //Não é o último da lista
                             if(pAnt_dicio != pbuscarLetra) { //Tem anterior
                                 pAnt_dicio->pProx = pbuscarLetra->pProx;
@@ -466,43 +366,14 @@ void excluir_fruta(){
     }
     pAux_dicio = NULL;
     pAux_fruta = NULL;
+
+    listar_tudo(inicio_dicio);
     gravar();
 }
 
 /****************** FUNCAO LISTAR REMISSO ******************/
 void listar_remisso(){//exibir como tá no arquivo
     listar_tudo(inicio_dicio);
-}
-
-
-/****************** FUNCAO MENU EXCLUIR ******************/
-void menu_excluir(){
-    int op=1;
-    do{
-       system("cls");
-       cout<<"\t\tO QUE DESEJA FAZER?\n";
-       cout<<"SAIR-0\nEXCLUIR FRUTA-1\nEXCLUIR INICIAL-2\n:";
-       cin>>op;
-       switch(op){
-       case 0:
-
-       break;
-       case 1:
-           system("cls");
-           excluir_fruta();
-           system("pause");
-       break;
-       case 2:
-           system("cls");
-           excluir_inicial();
-           system("pause");
-       break;
-       default:
-        cout<<"\nOpção inválida, tente novamente!\n";
-        system("pause");
-       break;
-       }
-    }while(op!=0);
 }
 
 /****************** FUNCAO MENU EXIBIR ******************/
@@ -512,7 +383,7 @@ void menu_exibir(){
         do{
            system("cls");
            cout<<"\t\tComo deseja exibir?\n";
-           cout<<"Voltar-0\nExibir remisso-1\nExibir letra-2\n:";
+           cout<<"Voltar-0\nExibir remisso-1\nExibir letra-2\nExibir Fruta-3\n:";
            cin>>op;
            switch(op){
            case 0:
@@ -526,6 +397,19 @@ void menu_exibir(){
                system("cls");
                exibir_inicial();
                system("pause");
+           break;
+           case 3:
+               system("cls");
+               if(pLer_fruta = buscar()){
+                   system("cls");
+                   cont_linha = 1;
+                   cabecalhoExibir();
+                   exibir_fruta(pLer_fruta);
+                   cout << "\n";
+                   system("pause");
+               }else{
+                 printf("\n Essa fruta não foi adicionado(a) ao dicionário");
+               }
            break;
            default:
             cout<<"\nOpção inválida, tente novamente!\n";
@@ -548,7 +432,6 @@ void ordenar_alfabetico() { //Ordenação por comparação
         pAux_Temp_Dicio->pProx = new Dicionario;//Cria novo nodo para dicionario temporario
         pAux_Temp_Dicio = pAux_Temp_Dicio->pProx; //Ponteiro temporario aponta para novo nodo
         pAux_fruta_temp = &pAux_Temp_Dicio->inicio_fruta; //Ponteira auxiliar temp para fruta aponta para o inicio de frutas
-        pAux_Temp_Dicio->pProx = NULL;
         pAux_Temp_Dicio->inicial = pAux_dicio->inicial; //Copia a inicial da original para temporario
         pAux_fruta = pAux_dicio->inicio_fruta.pProx;//Aponta para o primeiro da lista de frutas com inicial igual
         while(pAux_fruta){ //Percorre as frutas de um nodo original
@@ -563,15 +446,19 @@ void ordenar_alfabetico() { //Ordenação por comparação
     }
     //Ordenar lista temporária principal
     pAnt_dicio = dicio_temp.pProx;
-    Dicionario *temporario = new Dicionario; //Necessário reservar local de memória
+    Dicionario *temporario;
     while(pAnt_dicio->pProx){
         pAux_dicio = pAnt_dicio->pProx;
         while(pAux_dicio){
             //cout << "\ncomparando " << pAnt_dicio->inicial << " e " << pAux_dicio->inicial << " ";
-
             if(pAnt_dicio->inicial > pAux_dicio->inicial){
-                //cout << "\n" << pAnt_dicio->inicial << " E maior que " << pAux_dicio->inicial;
+                //cout << pAnt_dicio->inicial << " E maior que " << pAux_dicio->inicial;
                 //cout << "\ntrocar " << pAnt_dicio->inicial << " e " << pAux_dicio->inicial << " ";
+                /*
+                X = A
+                A = B
+                B = X
+                */
                 temporario->inicial = pAnt_dicio->inicial;
                 temporario->inicio_fruta = pAnt_dicio->inicio_fruta;
 
@@ -581,12 +468,8 @@ void ordenar_alfabetico() { //Ordenação por comparação
                 pAux_dicio->inicial = temporario->inicial;
                 pAux_dicio->inicio_fruta = temporario->inicio_fruta;
             }
-
             pAux_dicio = pAux_dicio->pProx;
-            if(pAux_dicio == NULL) {
-            }
         }
-        //cout << "\nproximo";
         pAnt_dicio = pAnt_dicio->pProx;
     }
     //Ordenando as sub-listas
@@ -620,7 +503,7 @@ void ordenar_alfabetico() { //Ordenação por comparação
 
 
 /****************** FUNCAO MENU ORDENAR ******************/
-void menu_ordenar(){//escolhe como serão ordenadas as palavras(alfabética, criação e randomica);
+void ordenar(){//escolhe como serão ordenadas as palavras(alfabética, criação e randomica);
     if(inicio_dicio.pProx){
         int op = -1;
         do {
@@ -689,14 +572,14 @@ void ordenar_relevancia(){
 }
 
 /****************** FUNCAO PESQUISAR POR RELEVÂNCIA ******************/
-void buscar_relevancia() {
-    if(inicio_dicio.pProx != NULL) {
+void pesquisar() {
+    if(inicio_dicio.pProx) {
         Fruta *pPesq_fruta;
         Dicionario *pPesq_dicio, *pAux_Temp_Dicio;
         dicio_temp.pProx = NULL;
         char pesquisa[40];
         int indice = 0, quantidade = 0;
-        cout<<"Informe o que quer pesquisar (mais de uma letra)\n:";
+        cout<<"Informe o que quer pesquisar\n:";
         fflush(stdin);
         gets(pesquisa);
         if(strlen(pesquisa) > 1) {
@@ -764,217 +647,28 @@ void buscar_relevancia() {
             system("cls");
             cont_linha = 1;
             if(dicio_temp.pProx) {
-                cabecalhoExibirReferecia();
+                cabecalhoExibir();
                 pAux_dicio = &dicio_temp;
                 while(pAux_dicio->pProx) {
                     pAux_dicio = pAux_dicio->pProx;
                     pAux_fruta = &pAux_dicio->inicio_fruta;
                     while(pAux_fruta->pProx) {
                         pAux_fruta = pAux_fruta->pProx;
-                        exibir_fruta(pAux_fruta, 1);
+                        gotoxy(0, cont_linha+1);
+                        cout << pAux_fruta->nome;
+                        gotoxy(20, cont_linha+1);
+                        cout << "| " << pAux_fruta->descricao;
+                        gotoxy(40, cont_linha+1);
+                        cout << "| " << pAux_fruta->relevancia;
+                        cont_linha++;
                     }
                 }
-            }
                 cout << "\n";
+            }
         }
     } else {
         cout << "Não existem registros de frutas!\n";
     }
-}
-
-/****************** FUNCAO MENU PESQUISAR ******************/
-void menu_pesquisar(){
-    int op=1;
-    do{
-       system("cls");
-       cout<<"\t\tO QUE DESEJA FAZER?\n";
-       cout<<"SAIR-0\nPESQUISAR FRUTA-1\nPESQUISAR POR RELEVÂNCIA-2\n:";
-       cin>>op;
-       switch(op){
-       case 0:
-       break;
-       case 1:
-           system("cls");
-           pLer_fruta = buscar();
-           if(pLer_fruta!= NULL){
-               system("cls");
-               cont_linha = 1;
-               cabecalhoExibir();
-               exibir_fruta(pLer_fruta);
-               cout << "\n";
-               system("pause");
-           }else{
-             printf("Essa fruta não foi adicionado(a) ao dicionário\n");
-             system("pause");
-           }
-       break;
-       case 2:
-           system("cls");
-           buscar_relevancia();
-           system("pause");
-       break;
-       default:
-            cout<<"\nOpção inválida, tente novamente!\n";
-            system("pause");
-       break;
-       }
-    }while(op!=0);
-}
-
-void excluir_fruta_parametro(char fruta[40]) {
-    int encontrou;
-    if(inicio_dicio.pProx){
-        strcpy(elemento, fruta);
-        pAux_dicio=&inicio_dicio;
-        if(pAux_dicio->pProx!=NULL){
-            pbuscarLetra=pAux_dicio->pProx;
-            while(pbuscarLetra){
-                pAnt_dicio = pbuscarLetra;
-               if(toupper(elemento[0])==toupper(pbuscarLetra->inicial)){
-                   pbuscarFruta=&pbuscarLetra->inicio_fruta;
-                   while(pbuscarFruta->pProx){
-                        pAnt_fruta = pbuscarFruta; //Anterior recebe atual
-                        pbuscarFruta=pbuscarFruta->pProx; //Atual recebe próximo
-                        if(strcmp(elemento, pbuscarFruta->nome)==0){
-                            //Fruta encontrada
-                            encontrou = 1;
-                            pAnt_fruta->pProx = pbuscarFruta->pProx;
-                            delete pbuscarFruta;
-                        }
-                   }
-                   if(pbuscarLetra->inicio_fruta.pProx == NULL){
-                        if(pbuscarLetra->pProx) { //Não é o último da lista
-                            if(pAnt_dicio != pbuscarLetra) { //Tem anterior
-                                pAnt_dicio->pProx = pbuscarLetra->pProx;
-                                delete pbuscarLetra;
-                                pbuscarLetra = pAnt_dicio->pProx;
-                                pbuscarLetra->pAnt = pAnt_dicio;
-                            } else { //Não tem anterior
-                                inicio_dicio.pProx = pbuscarLetra->pProx;
-                                pbuscarLetra = inicio_dicio.pProx;
-                                delete pAnt_dicio;
-                                pbuscarLetra->pAnt = &inicio_dicio;
-                            }
-                        } else { //É o último da lista
-                            if(inicio_dicio.pProx != pbuscarLetra) { // Tem anterior
-                                pAnt_dicio->pProx = NULL;
-                                pbuscarLetra = pAnt_dicio;
-                            } else { //Não tem anterior
-                                pbuscarLetra = &inicio_dicio;
-                                pbuscarLetra->pProx = NULL;
-                            }
-                        }
-                   }
-               }
-               pbuscarLetra=pbuscarLetra->pProx;
-            }
-            if(encontrou != 1) {
-                cout << "Fruta " << elemento << " não encontrada!\n";
-                system("pause");
-            }
-        } else {
-            cout<<"\nNão existe fruta cadastrada na lista!\n";
-        }
-    } else {
-        cout << "Não existem registros de frutas!\n";
-    }
-    pAux_dicio = NULL;
-    pAux_fruta = NULL;
-    gravar();
-}
-
-/****************** FUNCAO ALTERAR FRUTA ******************/
-void alterar_fruta() {
-    tempFruta = buscar(); //Fruta que deve ser alterada
-    if(tempFruta != NULL) { //Se encontrou no dicionario
-        system("cls");
-        gotoxy(0, 1);
-        cout << "Informe o novo nome da fruta: ";
-        gotoxy(0, 2);
-        cout << "Nova escrição da fruta: ";
-        gotoxy(30, 1);
-        fflush(stdin);
-        gets(palavra);
-        gotoxy(24, 2);
-        fflush(stdin);
-        gets(descricao_fruta);
-        if(palavra[0] != tempFruta->nome[0]){
-            //Subistituir
-            pAux_dicio = &inicio_dicio;
-            //Verifica inicial
-            while((pAux_dicio->pProx) && (toupper(pAux_dicio->inicial) != toupper(palavra[0]))){
-                pAnt_dicio = pAux_dicio;
-                pAux_dicio = pAux_dicio->pProx;
-            }
-            if(pAux_dicio->inicial != palavra[0]) { //Inicial não encontrada
-                pAux_dicio->pProx = new Dicionario; //Cria novo nodo para essa inicial
-                pAux_dicio = pAux_dicio->pProx;
-                pAux_dicio->inicial = palavra[0];
-                pAux_dicio->pProx = NULL; //Faz o próximo item(último) apontar para nulo(necessário)
-            }
-            //Validar palavra
-            pAux_fruta = &pAux_dicio->inicio_fruta;
-            while((pAux_fruta->pProx) && (strcmp(pAux_fruta->nome, palavra) != 0)) {
-                pAux_fruta = pAux_fruta->pProx;
-            }
-            if(strcmp(pAux_fruta->nome, palavra) == 0) { //Palavra já inserida
-                cout << "Fruta já inserida!";
-            } else { //Cria espaço para nova fruta
-                pAux_fruta->pProx = new Fruta; //Cria novo espaço para substituir fruta antiga
-                pAux_fruta = pAux_fruta->pProx;
-                strcpy(pAux_fruta->nome, palavra);
-                strcpy(pAux_fruta->descricao, descricao_fruta);
-                cout << "Excluir " << tempFruta->nome;
-                cout << "\nNova fruta " << pAux_fruta->nome;
-                system("pause");
-                //Excluir fruta alterada
-                excluir_fruta_parametro(tempFruta->nome);
-            }
-            pAux_dicio = NULL;
-            pAux_fruta = NULL;
-        } else{ //Palavra continua no mesmo nodo e só é modificada
-            strcpy(tempFruta->nome, palavra);
-            strcpy(tempFruta->descricao, descricao_fruta);
-        }
-        gravar();
-    } else {
-        cout << "Fruta não encontrada!\n";
-    }
-}
-
-/****************** FUNCAO MENU ALTERAR ******************/
-void menu_alterar() {
-    int op=1;
-    do{
-       system("cls");
-       cout<<"\t\tO QUE DESEJA FAZER?\n";
-       cout<<"SAIR-0\nALTERAR DESCRIÇAO-1\nALTERAR NOME E DESCRIÇÃO-2\n:";
-       cin>>op;
-       switch(op){
-       case 0:
-       break;
-       case 1:
-           system("cls");
-           tempFruta = NULL;
-           tempFruta = buscar();
-           if(tempFruta != NULL) {
-                alterar(tempFruta);
-            } else {
-                cout << "Fruta não encontrada!\n";
-            }
-           system("pause");
-       break;
-       case 2:
-           system("cls");
-            alterar_fruta();
-           system("pause");
-       break;
-       default:
-        cout<<"\nOpção inválida, tente novamente!\n";
-        system("pause");
-       break;
-    }
-    }while(op!=0);
 }
 
 /****************** FUNCAO MENU PRINCIPAL ******************/
@@ -1002,22 +696,26 @@ void menu(){
        break;
        case 3:
            system("cls");
-           menu_excluir();
+           excluir_fruta();
            system("pause");
        break;
        case 4:
            system("cls");
-           menu_alterar();
+            if(inicio_dicio.pProx){
+                alterar(buscar());
+            } else {
+                cout << "Não existem registros de frutas!\n";
+            }
            system("pause");
        break;
        case 5:
            system("cls");
-           menu_ordenar();
+           ordenar();
            system("pause");
        break;
        case 6:
            system("cls");
-           menu_pesquisar();
+           pesquisar();
            system("pause");
        break;
        default:
