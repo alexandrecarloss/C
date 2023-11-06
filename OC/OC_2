@@ -1,0 +1,17 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <locale.h>
+
+int main() {
+    setlocale(LC_ALL, "Portuguese");
+    int num1 = 2;
+    int num2 = 3;
+    if(num1 > num2) {
+        printf("%i é maior", num1);
+    } else if(num2 > num1) {
+        printf("%i é maior", num2);
+    } else {
+        printf("%i e %i são iguais", num1, num2);
+    }
+    return 0;
+}
