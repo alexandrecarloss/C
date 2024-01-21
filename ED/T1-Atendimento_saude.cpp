@@ -51,7 +51,23 @@ struct Proficao {
     Proficao *pProxProficao, *pAntProficao;
 } inicio_proficao, *pAuxProficao;
 
+int cont_linha;
+
 //PROCEDIMENTOS
+/****************** FUNCAO CONTADOR DE OCORRÊNCIA ******************/
+int existe(char *str1, char *str2, int id) { //Passa a string que pode conter a substring, a substring e a posição em que começa a verificação
+    int i, j = 0;
+    for(i = id; i < strlen(str1); i++){ //Percorre a string da posição id até o final
+        if(toupper(str1[i]) == toupper(str2[j])) //Se a letra atual é igual a letra da sobstring j++
+            j++;
+        else //Senão é uma palavra diferente e j = 0
+            j = 0;
+        if(j == strlen(str2)) //retorna a posição em que termina a substring na string
+            return i;
+    }
+    return -1; //Não encontrou substring na string
+}
+
 
 void gravarProfissional(Profissional *profissional, bool limpar = false){
     FILE *pont_arq;
@@ -81,26 +97,37 @@ void gravarProfissional(Profissional *profissional, bool limpar = false){
 }
 
 void profissionalCabecalho() {
-    gotoxy(20, 5);
+    cont_linha++;
+    gotoxy(20, cont_linha);
     cout << "Matrícula: ";
-    gotoxy(20, 6);
+    cont_linha++;
+    gotoxy(20, cont_linha);
     cout << "CPF: ";
-    gotoxy(20, 7);
+    cont_linha++;
+    gotoxy(20, cont_linha);
     cout << "Nome: ";
-    gotoxy(20, 8);
+    cont_linha++;
+    gotoxy(20, cont_linha);
     cout << "Código profissão: ";
-    gotoxy(20, 9);
+    cont_linha++;
+    gotoxy(20, cont_linha);
     cout << "Sigla: ";
-    gotoxy(20, 10);
+    cont_linha++;
+    gotoxy(20, cont_linha);
     cout << "Número registro: ";
-    gotoxy(20, 11);
+    cont_linha++;
+    gotoxy(20, cont_linha);
     cout << "Tipo: ";
-    gotoxy(20, 12);
+    cont_linha++;
+    gotoxy(20, cont_linha);
     cout << "Data de nascimento (dia mês ano): ";
-    gotoxy(20, 13);
+    cont_linha++;
+    gotoxy(20, cont_linha);
     cout << "E-mail: ";
-    gotoxy(20, 14);
+    cont_linha++;
+    gotoxy(20, cont_linha);
     cout << "Fone: ";
+    cont_linha = cont_linha - 10;
 }
 
 void recebeProfissional() {
@@ -140,41 +167,54 @@ void recebeProfissional() {
     gets(pAuxProf->fone);
     gravarProfissional(pAuxProf);
 }
+
 void exibirProfissional(Profissional *profissional) { //Exibe o profissional indicado pela região de memória
-    profissionalCabecalho();
-    gotoxy(31, 5);
+    cont_linha++;
+    gotoxy(31, cont_linha);
     cout << profissional->matricula;
-    gotoxy(25, 6);
+    cont_linha++;
+    gotoxy(25, cont_linha);
     cout << profissional->cpf;
-    gotoxy(26, 7);
+    cont_linha++;
+    gotoxy(26, cont_linha);
     cout << profissional->nome;
-    gotoxy(38, 8);
+    cont_linha++;
+    gotoxy(38, cont_linha);
     cout << profissional->codigo;
-    gotoxy(27, 9);
+    cont_linha++;
+    gotoxy(27, cont_linha);
     cout << profissional->sigla;
-    gotoxy(37, 10);
+    cont_linha++;
+    gotoxy(37, cont_linha);
     cout << profissional->numReg;
-    gotoxy(26, 11);
+    cont_linha++;
+    gotoxy(26, cont_linha);
     cout << profissional->tipo;
-    gotoxy(54, 12);
+    cont_linha++;
+    gotoxy(54, cont_linha);
     cout << profissional->nascimentoProf.dia << "/" << profissional->nascimentoProf.mes << "/" << profissional->nascimentoProf.ano;
-    gotoxy(28, 13);
+    cont_linha++;
+    gotoxy(28, cont_linha);
     cout << profissional->email;
-    gotoxy(26, 14);
+    cont_linha++;
+    gotoxy(26, cont_linha);
     cout << profissional->fone;
 }
 
 void exibirProfissionais() { //Exibe todos os profissionais
     pAuxProf = &inicio_profissional;
+    system("cls");
+    cont_linha = 4;
     while(pAuxProf->pProxProf) {
         pAuxProf = pAuxProf->pProxProf;
-        system("cls");
+        profissionalCabecalho();
         exibirProfissional(pAuxProf);
     }
 }
 
-void menuAlterarProfissional() { //Menu para escolher o atributo específico do profissional a ser alterado
-    gotoxy(20, 3);
+void menuAlterarProfissionalAtributo(Profissional *profissional) { //Altera um atributo específico do profissional
+    int opcao;
+     gotoxy(20, 3);
     cout << "MENU ALTERAR";
     gotoxy(20, 5);
     cout << "O que deseja alterar? ";
@@ -198,10 +238,6 @@ void menuAlterarProfissional() { //Menu para escolher o atributo específico do p
     cout << "E-mail - 8";
     gotoxy(15, 16);
     cout << "Fone - 9";
-}
-
-void menuAlterarProfissionalEscolha(Profissional *profissional) { //altera um atributo específico do profissional
-    int opcao;
     gotoxy(15, 17);
     cin >> opcao;
     getchar();
@@ -264,12 +300,82 @@ void menuAlterarProfissionalEscolha(Profissional *profissional) { //altera um at
     }
 }
 
+Profissional* escolherProfissional() { //Retorna um profissional escolhido ou nulo
+    pAuxProf = &inicio_profissional;
+    char chaveBuscar[50];
+    int opcao, indice = 0;
+    cout << "Buscar por ";
+    cout << "Matrícula - 1";
+    cout << "CPF - 2";
+    cout << "Nome - 3";
+    cin >> opcao;
+    getchar();
+    switch(opcao) {
+    case 1:
+        cout << "Matricula buscar: ";
+        gets(chaveBuscar);
+        while(pAuxProf->pProxProf) {
+            pAuxProf = pAuxProf->pProxProf;
+            indice = 0;
+            indice = existe(pAuxProf->matricula, chaveBuscar, indice);
+            if(indice != -1) {
+                //exibirProfissional(pAuxProf);
+                return pAuxProf;
+                break;
+            }
+        }
+        break;
+    case 2:
+        cout << "CPF buscar: ";
+        gets(chaveBuscar);
+        while(pAuxProf->pProxProf) {
+            pAuxProf = pAuxProf->pProxProf;
+            indice = 0;
+            indice = existe(pAuxProf->cpf, chaveBuscar, indice);
+            if(indice != -1) {
+                //exibirProfissional(pAuxProf);
+                return pAuxProf;
+                break;
+            }
+        }
+        break;
+    case 3:
+        cout << "Nome buscar: ";
+        gets(chaveBuscar);
+        while(pAuxProf->pProxProf) {
+            pAuxProf = pAuxProf->pProxProf;
+            indice = 0;
+            indice = existe(pAuxProf->nome, chaveBuscar, indice);
+            if(indice != -1) {
+                //exibirProfissional(pAuxProf);
+                return pAuxProf;
+                break;
+            }
+        }
+        break;
+    default:
+        cout << "Opção inválida!";
+        break;
+    }
+
+}
+
+void menuCrudProfissional() {
+
+
+}
+
 int main() {
     setlocale(LC_ALL, "Portuguese");
+    cont_linha = 4;
     profissionalCabecalho();
     recebeProfissional();
-    menuAlterarProfissional();
-    menuAlterarProfissionalEscolha(pAuxProf);
+    system("cls");
+    profissionalCabecalho();
+    recebeProfissional();
+    //menuAlterarProfissionalAtributo();
+    exibirProfissional(escolherProfissional());
+    system("pause");
     system("cls");
     exibirProfissionais();
 
