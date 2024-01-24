@@ -81,6 +81,7 @@ void gravarProfissional(Profissional *profissional, bool limpar = false){
         fprintf(pont_arq, "%s\n", profissional->matricula);
         fprintf(pont_arq, "%s\n", profissional->cpf);
         fprintf(pont_arq, "%s\n", profissional->nome);
+        fprintf(pont_arq, "%s\n", profissional->codigo);
         fprintf(pont_arq, "%d\n", profissional->numReg);
         fprintf(pont_arq, "%s\n", profissional->sigla);
         fprintf(pont_arq, "%s\n", profissional->tipo);
@@ -136,6 +137,7 @@ void recebeProfissional() {
         pAuxProf = pAuxProf->pProxProf;
     }
     pAuxProf->pProxProf = new Profissional;
+    pAuxProf->pProxProf->pAntProf = pAuxProf;
     pAuxProf = pAuxProf->pProxProf;
     gotoxy(31, 5);
     gets(pAuxProf->matricula);
@@ -360,6 +362,79 @@ Profissional* escolherProfissional() { //Retorna um profissional escolhido ou nu
 
 }
 
+bool comparaString(char *str1, char *str2) { //Retorna 1(true) se a primeira for maior e 0(false) se a segunda for maior ou iguais
+    int menorTam;
+    if(strlen(str1) > strlen(str2)) {
+        menorTam = strlen(str2);
+    } else {
+        menorTam = strlen(str1);
+    }
+    for(int i = 0; i < menorTam; i++) {
+        if(toupper(str1[i]) > toupper(str2[i])) {
+            return true;
+        } else if(toupper(str1[i]) < toupper(str2[i])) {
+            return false;
+        }
+    }
+    if(strlen(str1) > strlen(str2)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+void trocarDadosProf(Profissional *pAtribui, Profissional *pRecebe) { //Troca os atributos de dois ponteiros de profissional
+    int num;
+    strcpy(pRecebe->matricula, pAtribui->matricula);
+    strcpy(pRecebe->cpf, pAtribui->cpf);
+    strcpy(pRecebe->nome, pAtribui->nome);
+    strcpy(pRecebe->codigo, pAtribui->codigo);
+    num = pRecebe->numReg;
+    pRecebe->numReg = pAtribui->numReg;
+    pAtribui->numReg = num;
+    strcpy(pRecebe->sigla, pAtribui->sigla);
+    strcpy(pRecebe->tipo, pAtribui->tipo);
+    pRecebe->nascimentoProf = pAtribui->nascimentoProf;
+    strcpy(pRecebe->email, pAtribui->email);
+    strcpy(pRecebe->fone, pAtribui->fone);
+}
+
+void ordenarProfissional(int tipo = 1) { //Ordenar default 1 por matricula, 2 por cpf, 3 pro nome
+    Profissional *pOrdProf, *pSubisProf = new Profissional;
+    pAuxProf = &inicio_profissional;
+    while(pAuxProf->pProxProf) {
+        pAuxProf = pAuxProf->pProxProf;
+        if(pAuxProf->pProxProf) {
+            pOrdProf = pAuxProf->pProxProf;
+            while(pOrdProf) {
+                if(tipo == 1) {
+                    if(comparaString(pAuxProf->matricula, pOrdProf->matricula)) {
+                        //trocar
+                        trocarDadosProf(pOrdProf, pSubisProf);
+                        trocarDadosProf(pAuxProf, pOrdProf);
+                        trocarDadosProf(pSubisProf, pAuxProf);
+                    }
+                } else if(tipo == 2) {
+                    if(comparaString(pAuxProf->cpf, pOrdProf->cpf)) {
+                        //trocar
+                        trocarDadosProf(pOrdProf, pSubisProf);
+                        trocarDadosProf(pAuxProf, pOrdProf);
+                        trocarDadosProf(pSubisProf, pAuxProf);
+                    }
+                } else if(tipo == 3) {
+                    if(comparaString(pAuxProf->nome, pOrdProf->nome)) {
+                        //trocar
+                        trocarDadosProf(pOrdProf, pSubisProf);
+                        trocarDadosProf(pAuxProf, pOrdProf);
+                        trocarDadosProf(pSubisProf, pAuxProf);
+                    }
+                }
+                pOrdProf = pOrdProf->pProxProf;
+            }
+        }
+    }
+}
+
 void menuCrudProfissional() {
 
 
@@ -373,9 +448,12 @@ int main() {
     system("cls");
     profissionalCabecalho();
     recebeProfissional();
+    system("cls");
+    profissionalCabecalho();
+    recebeProfissional();
     //menuAlterarProfissionalAtributo();
-    exibirProfissional(escolherProfissional());
-    system("pause");
+
+    ordenarProfissional(3);
     system("cls");
     exibirProfissionais();
 
