@@ -68,7 +68,6 @@ int existe(char *str1, char *str2, int id) { //Passa a string que pode conter a 
     return -1; //Não encontrou substring na string
 }
 
-
 void gravarProfissional(Profissional *profissional, bool limpar = false){
     FILE *pont_arq;
     if(limpar) {
@@ -131,16 +130,130 @@ void profissionalCabecalho() {
     cont_linha = cont_linha - 10;
 }
 
+Profissional* escolherProfissional() { //Retorna um profissional escolhido ou nulo
+    pAuxProf = &inicio_profissional;
+    char chaveBuscar[50];
+    int opcao, indice = 0;
+    gotoxy(20, 5);
+    cout << "Buscar por ";
+    gotoxy(20, 6);
+    cout << "Matrícula - 1";
+    gotoxy(20, 7);
+    cout << "CPF - 2";
+    gotoxy(20, 8);
+    cout << "Nome - 3";
+    gotoxy(20, 9);
+    cin >> opcao;
+    getchar();
+    switch(opcao) {
+    case 1:
+        gotoxy(20, 5);
+        cout << "Matricula buscar: ";
+        gets(chaveBuscar);
+        while(pAuxProf->pProxProf) {
+            pAuxProf = pAuxProf->pProxProf;
+            indice = 0;
+            indice = existe(pAuxProf->matricula, chaveBuscar, indice);
+            if(indice != -1) {
+                //exibirProfissional(pAuxProf);
+                return pAuxProf;
+                break;
+            }
+        }
+        break;
+    case 2:
+        gotoxy(20, 5);
+        cout << "CPF buscar: ";
+        gets(chaveBuscar);
+        while(pAuxProf->pProxProf) {
+            pAuxProf = pAuxProf->pProxProf;
+            indice = 0;
+            indice = existe(pAuxProf->cpf, chaveBuscar, indice);
+            if(indice != -1) {
+                //exibirProfissional(pAuxProf);
+                return pAuxProf;
+                break;
+            }
+        }
+        break;
+    case 3:
+        gotoxy(20, 5);
+        cout << "Nome buscar: ";
+        gets(chaveBuscar);
+        while(pAuxProf->pProxProf) {
+            pAuxProf = pAuxProf->pProxProf;
+            indice = 0;
+            indice = existe(pAuxProf->nome, chaveBuscar, indice);
+            if(indice != -1) {
+                //exibirProfissional(pAuxProf);
+                return pAuxProf;
+                break;
+            }
+        }
+        break;
+    default:
+        gotoxy(20, 5);
+        cout << "Opção inválida!";
+        system("pause");
+        break;
+    }
+
+}
+
+void excluirProfissional(Profissional *profissinal) {
+    if(profissinal) { //Se não for nulo
+        pAuxProf = profissinal->pProxProf;
+        pAuxProf->pAntProf = profissinal->pAntProf; //Proximo aponta para anterior
+        profissinal->pAntProf->pProxProf = pAuxProf; //Anterior aponta para o próximo
+        gravarProfissional(profissinal, 1); //Limpar registros
+
+        //Salva os registros em arquivo
+        pAuxProf = inicio_profissional.pProxProf;
+        while(pAuxProf) {
+            gravarProfissional(pAuxProf);
+            pAuxProf = pAuxProf->pProxProf;
+        }
+    } else {
+        cout << "Profissional não encontrado";
+    }
+}
+
+bool verificaMatriculaProfissional(char chave[20]) {
+    Profissional *pExisteProf;
+    pExisteProf = &inicio_profissional;
+    while(pExisteProf->pProxProf) {
+        pExisteProf = pExisteProf->pProxProf;
+        if(strcmp(chave, pExisteProf->matricula) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void recebeProfissional() {
+    char chave[20];
     pAuxProf = &inicio_profissional;
     while(pAuxProf->pProxProf) {
         pAuxProf = pAuxProf->pProxProf;
     }
-    pAuxProf->pProxProf = new Profissional;
-    pAuxProf->pProxProf->pAntProf = pAuxProf;
-    pAuxProf = pAuxProf->pProxProf;
-    gotoxy(31, 5);
-    gets(pAuxProf->matricula);
+    while(true) {
+        system("cls");
+        cont_linha = 4;
+        profissionalCabecalho();
+        gotoxy(31, 5);
+        gets(chave);
+        if(verificaMatriculaProfissional(chave)) {
+            gotoxy(20, 15);
+            cout << "Matrícula já existente!";
+            system("pause");
+        } else {
+            pAuxProf->pProxProf = new Profissional;
+            pAuxProf->pProxProf->pAntProf = pAuxProf;
+            pAuxProf = pAuxProf->pProxProf;
+            strcpy(pAuxProf->matricula, chave);
+            break;
+        }
+    }
     gotoxy(25, 6);
     gets(pAuxProf->cpf);
     gotoxy(26, 7);
@@ -216,7 +329,7 @@ void exibirProfissionais() { //Exibe todos os profissionais
 
 void menuAlterarProfissionalAtributo(Profissional *profissional) { //Altera um atributo específico do profissional
     int opcao;
-     gotoxy(20, 3);
+    gotoxy(20, 3);
     cout << "MENU ALTERAR";
     gotoxy(20, 5);
     cout << "O que deseja alterar? ";
@@ -247,9 +360,23 @@ void menuAlterarProfissionalAtributo(Profissional *profissional) { //Altera um a
     case 0:
         break;
     case 1:
-        gotoxy(20, 5);
-        cout << "Matrícula: ";
-        gets(profissional->matricula);
+        char chave[20];
+        while(true) {
+            system("cls");
+            gotoxy(20, 5);
+            cout << "Matrícula: ";
+            gotoxy(31, 5);
+            gets(chave);
+            if(verificaMatriculaProfissional(chave)) {
+                gotoxy(20, 6);
+                cout << "Matrícula já existente!";
+                system("pause");
+            } else {
+
+                strcpy(profissional->matricula, chave);
+                break;
+            }
+        }
         break;
     case 2:
         gotoxy(20, 5);
@@ -302,64 +429,75 @@ void menuAlterarProfissionalAtributo(Profissional *profissional) { //Altera um a
     }
 }
 
-Profissional* escolherProfissional() { //Retorna um profissional escolhido ou nulo
-    pAuxProf = &inicio_profissional;
-    char chaveBuscar[50];
-    int opcao, indice = 0;
-    cout << "Buscar por ";
-    cout << "Matrícula - 1";
-    cout << "CPF - 2";
-    cout << "Nome - 3";
-    cin >> opcao;
-    getchar();
-    switch(opcao) {
-    case 1:
-        cout << "Matricula buscar: ";
-        gets(chaveBuscar);
-        while(pAuxProf->pProxProf) {
-            pAuxProf = pAuxProf->pProxProf;
-            indice = 0;
-            indice = existe(pAuxProf->matricula, chaveBuscar, indice);
-            if(indice != -1) {
-                //exibirProfissional(pAuxProf);
-                return pAuxProf;
-                break;
-            }
+void alterarProfissional(Profissional *profissional) {
+    char chave[20];
+    while(true) {
+        system("cls");
+        cont_linha = 4;
+        profissionalCabecalho();
+        gotoxy(31, 5);
+        gets(chave);
+        if(verificaMatriculaProfissional(chave)) {
+            gotoxy(20, 15);
+            cout << "Matrícula já existente!";
+            system("pause");
+        } else {
+            strcpy(profissional->matricula, chave);
+            break;
         }
+    }
+    gotoxy(25, 6);
+    gets(profissional->cpf);
+    gotoxy(26, 7);
+    gets(profissional->nome);
+    gotoxy(38, 8);
+    gets(profissional->codigo);
+    gotoxy(27, 9);
+    gets(profissional->sigla);
+    gotoxy(37, 10);
+    cin >> profissional->numReg;
+    getchar();
+    gotoxy(26, 11);
+    gets(profissional->tipo);
+    gotoxy(54, 12);
+    cin >> profissional->nascimentoProf.dia;
+    gotoxy(57, 12);
+    cin >> profissional->nascimentoProf.mes;
+    gotoxy(60, 12);
+    cin >> profissional->nascimentoProf.ano;
+    getchar();
+    gotoxy(28, 13);
+    gets(profissional->email);
+    gotoxy(26, 14);
+    gets(profissional->fone);
+    gravarProfissional(profissional);
+}
+
+void menuAlterarProfissinal() {
+    int op;
+    gotoxy(20, 5);
+    cout << "Como deseja alterar?";
+    gotoxy(20, 7);
+    cout << "Tudo - 1";
+    gotoxy(20, 8);
+    cout << "Atributo - 2";
+    gotoxy(20, 9);
+    cin >> op;
+    switch(op) {
+    case 0:
+        break;
+    case 1:
+        system("cls");
+        alterarProfissional(escolherProfissional());
         break;
     case 2:
-        cout << "CPF buscar: ";
-        gets(chaveBuscar);
-        while(pAuxProf->pProxProf) {
-            pAuxProf = pAuxProf->pProxProf;
-            indice = 0;
-            indice = existe(pAuxProf->cpf, chaveBuscar, indice);
-            if(indice != -1) {
-                //exibirProfissional(pAuxProf);
-                return pAuxProf;
-                break;
-            }
-        }
-        break;
-    case 3:
-        cout << "Nome buscar: ";
-        gets(chaveBuscar);
-        while(pAuxProf->pProxProf) {
-            pAuxProf = pAuxProf->pProxProf;
-            indice = 0;
-            indice = existe(pAuxProf->nome, chaveBuscar, indice);
-            if(indice != -1) {
-                //exibirProfissional(pAuxProf);
-                return pAuxProf;
-                break;
-            }
-        }
+        system("cls");
+        menuAlterarProfissionalAtributo(escolherProfissional());
         break;
     default:
         cout << "Opção inválida!";
         break;
     }
-
 }
 
 bool comparaString(char *str1, char *str2) { //Retorna 1(true) se a primeira for maior e 0(false) se a segunda for maior ou iguais
@@ -435,27 +573,94 @@ void ordenarProfissional(int tipo = 1) { //Ordenar default 1 por matricula, 2 po
     }
 }
 
-void menuCrudProfissional() {
+void menuExibirProfissinal() {
+    int op;
+    gotoxy(20, 5);
+    cout << "Como deseja exibir?";
+    gotoxy(20, 7);
+    cout << "Tudo - 1";
+    gotoxy(20, 8);
+    cout << "Buscar por atributo - 2";
+    gotoxy(20, 9);
+    cin >> op;
+    getchar();
+    switch(op) {
+    case 0:
+        break;
+    case 1:
+        system("cls");
+        exibirProfissionais();
+        break;
+    case 2:
+        system("cls");
+        exibirProfissional(escolherProfissional());
+        break;
+    default:
+        cout << "Opção inválida!";
+        break;
+    }
+}
 
-
+void menuProfissional() {
+    int op;
+    while(op != 0) {
+        system("cls");
+        gotoxy(20, 3);
+        cout << "MENU PROFISSIONAL";
+        gotoxy(20, 5);
+        cout << "O que deseja fazer: ";
+        gotoxy(20, 7);
+        cout << "Voltar - 0";
+        gotoxy(20, 8);
+        cout << "Adicionar profissional - 1";
+        gotoxy(20, 9);
+        cout << "Exibir profissional - 2";
+        gotoxy(20, 10);
+        cout << "Alterar profissional - 3";
+        gotoxy(20, 11);
+        cout << "Remover profissional - 4";
+        gotoxy(20, 12);
+        cout << "Ordenar profissional - 5";
+        gotoxy(20, 13);
+        cin >> op;
+        getchar();
+        switch(op) {
+        case 0:
+            break;
+        case 1:
+            system("cls");
+            cont_linha = 4;
+            profissionalCabecalho();
+            recebeProfissional();
+            break;
+        case 2:
+            system("cls");
+            menuExibirProfissinal();
+            cout << "\n";
+            system("pause");
+            break;
+        case 3:
+            system("cls");
+            menuAlterarProfissinal();
+            break;
+        case 4:
+            system("cls");
+            excluirProfissional(escolherProfissional());
+            break;
+        case 5:
+            system("cls");
+            break;
+        default:
+            cout << "Opção inválida!";
+            break;
+        }
+    }
 }
 
 int main() {
     setlocale(LC_ALL, "Portuguese");
-    cont_linha = 4;
-    profissionalCabecalho();
-    recebeProfissional();
-    system("cls");
-    profissionalCabecalho();
-    recebeProfissional();
-    system("cls");
-    profissionalCabecalho();
-    recebeProfissional();
-    //menuAlterarProfissionalAtributo();
 
-    ordenarProfissional(3);
-    system("cls");
-    exibirProfissionais();
+    menuProfissional();
 
     return 0;
 }
