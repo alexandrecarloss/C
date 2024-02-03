@@ -38,14 +38,14 @@ struct Cliente {
     int idade;
     struct Data nascimento;
     Cliente *pProxCli, *pAntCli;
-} inicio_cliente, *pAuxCli;
+} inicio_cliente, *pAuxCli, *pLerCli, *pExcluiCli;
 
 struct Atendimento {
     int numero;
-    char matricula[15], codigo[10], descricao[500];
+    char matricula[15], codigo[15], descricao[500];
     struct Data dataAtendimento;
     Atendimento *pProxAten, *pAntAten;
-} inicio_atendimento, *pAuxAten;
+} inicio_atendimento, *pAuxAten, *pLerAten, *pExcluiAten;
 
 struct Proficao {
     char codigo[15], nome[50], sigla[10];
@@ -53,6 +53,8 @@ struct Proficao {
 } inicio_proficao, *pAuxProficao;
 
 int cont_linha;
+time_t mytime = time(NULL);
+struct tm tm = *localtime(&mytime);
 
 //PROCEDIMENTOS
 /****************** FUNCAO CONTADOR DE OCORRÊNCIA ******************/
@@ -153,6 +155,14 @@ void lerProfissional() {
             case 11:
                 strcpy(pLerProf->fone, lido);
                 etapa = -1;
+                pLerProf->idade = tm.tm_year + 1900 - pLerProf->nascimentoProf.ano;
+                if(pLerProf->nascimentoProf.mes > tm.tm_mon + 1) {
+                    pLerProf->idade--;
+                } else if(pLerProf->nascimentoProf.mes == tm.tm_mon + 1){
+                    if(pLerProf->nascimentoProf.dia < tm.tm_mday) {
+                        pLerProf->idade--;
+                    }
+                }
                 break;
             }
             etapa++;
@@ -194,7 +204,10 @@ void profissionalCabecalho() {
     cont_linha++;
     gotoxy(20, cont_linha);
     cout << "Fone: ";
-    cont_linha = cont_linha - 10;
+    cont_linha++;
+    gotoxy(20, cont_linha);
+    cout << "Idade: ";
+    cont_linha = cont_linha - 11;
 }
 
 /****************** FUNCAO BUSCAR PROFISSIONAL POR MATRICULA, CPF OU NOME ******************/
@@ -371,6 +384,14 @@ void recebeProfissional() {
     gets(pAuxProf->email);
     gotoxy(26, 14);
     gets(pAuxProf->fone);
+    pAuxProf->idade = tm.tm_year + 1900 - pAuxProf->nascimentoProf.ano;
+    if(pAuxProf->nascimentoProf.mes > tm.tm_mon + 1) {
+        pAuxProf->idade--;
+    } else if(pAuxProf->nascimentoProf.mes == tm.tm_mon + 1){
+        if(pAuxProf->nascimentoProf.dia < tm.tm_mday) {
+            pAuxProf->idade--;
+        }
+    }
     gravarProfissional(pAuxProf);
 }
 
@@ -406,6 +427,9 @@ void exibirProfissional(Profissional *profissional) { //Exibe o profissional ind
     cont_linha++;
     gotoxy(26, cont_linha);
     cout << profissional->fone;
+    cont_linha++;
+    gotoxy(27, cont_linha);
+    cout << profissional->idade;
 }
 
 /****************** FUNCAO EXIBIR TODOS OS PROFISSIONAIS ******************/
@@ -507,6 +531,14 @@ void menuAlterarProfissionalAtributo(Profissional *profissional) { //Altera um a
         cin >> profissional->nascimentoProf.mes;
         gotoxy(60, 5);
         cin >> profissional->nascimentoProf.ano;
+        profissional->idade = tm.tm_year + 1900 - profissional->nascimentoProf.ano;
+        if(profissional->nascimentoProf.mes > tm.tm_mon + 1) {
+            profissional->idade--;
+        } else if(profissional->nascimentoProf.mes == tm.tm_mon + 1){
+            if(profissional->nascimentoProf.dia < tm.tm_mday) {
+                profissional->idade--;
+            }
+        }
         break;
     case 8:
         gotoxy(20, 5);
@@ -562,6 +594,14 @@ void alterarProfissional(Profissional *profissional) {
     gotoxy(60, 12);
     cin >> profissional->nascimentoProf.ano;
     getchar();
+    profissional->idade = tm.tm_year + 1900 - profissional->nascimentoProf.ano;
+    if(profissional->nascimentoProf.mes > tm.tm_mon + 1) {
+        profissional->idade--;
+    } else if(profissional->nascimentoProf.mes == tm.tm_mon + 1){
+        if(profissional->nascimentoProf.dia < tm.tm_mday) {
+            profissional->idade--;
+        }
+    }
     gotoxy(28, 13);
     gets(profissional->email);
     gotoxy(26, 14);
@@ -665,7 +705,7 @@ void trocarDadosProf(Profissional *pAtribui, Profissional *pRecebe) { //Troca os
 }
 
 /****************** FUNCAO ORDENAR PROFISSIONAL ******************/
-void ordenarProfissional(int tipo = 1) { //Ordenar default 1 por matricula, 2 por cpf, 3 pro nome
+void ordenarProfissional(int tipo = 1) { //Ordenar default 1 por matricula, 2 por cpf, 3 por nome
     Profissional *pOrdProf, *pSubisProf = new Profissional;
     pAuxProf = &inicio_profissional;
     while(pAuxProf->pProxProf) {
@@ -885,18 +925,857 @@ void menuProfissional() {
 
 /****************** FUNCAO INFORMAÇÕES NA TELA ******************/
 void informacoesTela() {
-    time_t mytime;
-    mytime = time(NULL);
-    struct tm tm = *localtime(&mytime);
     gotoxy(90, 3);
     printf("Data da sessão: %d/%d/%d\n", tm.tm_mday, tm.tm_mon + 1, tm.tm_year + 1900);
+}
+
+
+//////////////////////////////////////////////////////////////////////////////
+                            //Cliente
+/****************** FUNCAO SALVAR/LIMPAR CLIENTE ******************/
+void gravarCliente(Cliente *cliente, bool limpar = false){
+    FILE *pont_arq;
+    if(limpar) {
+        pont_arq = fopen("cliente.txt", "w");
+        return;
+    } else{
+        pont_arq = fopen("cliente.txt", "a");
+    }
+    if(pont_arq) {
+        fprintf(pont_arq, "%s\n", cliente->codigo);
+        fprintf(pont_arq, "%s\n", cliente->nome);
+        fprintf(pont_arq, "%d\n", cliente->nascimento.dia);
+        fprintf(pont_arq, "%d\n", cliente->nascimento.mes);
+        fprintf(pont_arq, "%d\n", cliente->nascimento.ano);
+        fprintf(pont_arq, "%s\n", cliente->email);
+        fprintf(pont_arq, "%s\n", cliente->fone);
+        fprintf(pont_arq, "%s\n", cliente->celular);
+        fprintf(pont_arq, "%s\n", cliente->endCliente.logradouro);
+        fprintf(pont_arq, "%d\n", cliente->endCliente.numero);
+        fprintf(pont_arq, "%s\n", cliente->endCliente.bairro);
+        fprintf(pont_arq, "%s\n", cliente->endCliente.cidade);
+        fprintf(pont_arq, "%s\n", cliente->endCliente.estado);
+        fprintf(pont_arq, "%s\n", cliente->endCliente.cep);
+        fclose(pont_arq);
+    }
+    else {
+        cout << "Erro ao gravar arquivo!";
+    }
+}
+
+/****************** FUNCAO LER ARQUIVO CLIENTE ******************/
+void lerCliente() {
+    char lido[500];
+    int etapa=0;
+    FILE *pont_arq;
+    pont_arq = fopen("cliente.txt", "r");
+    if(pont_arq) {
+      pLerCli = &inicio_cliente;
+      while(!feof(pont_arq)) {
+          if(fgets(lido, 500, pont_arq)) {
+            lido[strlen(lido)-1] = '\0';
+            switch(etapa) {
+            case 0:
+                pLerCli = &inicio_cliente;
+                while(pLerCli->pProxCli) { //Percorre até o último registro
+                    pLerCli = pLerCli->pProxCli;
+                }
+                pLerCli->pProxCli = new Cliente;// Cria um novo registro depois do último
+                pLerCli->pProxCli->pAntCli = pLerCli; //Anterior do novo espaço recebe atual
+                pLerCli = pLerCli->pProxCli; //Atual recebe próximo
+                strcpy(pLerCli->codigo, lido);
+            break;
+            case 1:
+                strcpy(pLerCli->nome, lido);
+                break;
+            case 2:
+                pLerCli->nascimento.dia = atoi(lido);
+                break;
+            case 3:
+                pLerCli->nascimento.mes = atoi(lido);
+                break;
+            case 4:
+                pLerCli->nascimento.ano = atoi(lido);
+                break;
+            case 5:
+                strcpy(pLerCli->email, lido);
+                break;
+            case 6:
+                strcpy(pLerCli->fone, lido);
+                break;
+            case 7:
+                strcpy(pLerCli->celular, lido);
+                break;
+            case 8:
+                strcpy(pLerCli->endCliente.logradouro, lido);
+                break;
+            case 9:
+                pLerCli->endCliente.numero = atoi(lido);
+                break;
+            case 10:
+                strcpy(pLerCli->endCliente.bairro, lido);
+                break;
+            case 11:
+                strcpy(pLerCli->endCliente.cidade, lido);
+                break;
+            case 12:
+                strcpy(pLerCli->endCliente.estado, lido);
+                break;
+            case 13:
+                strcpy(pLerCli->endCliente.cep, lido);
+                etapa = -1;
+                pLerCli->idade = tm.tm_year + 1900 - pLerCli->nascimento.ano;
+                if(pLerCli->nascimento.mes > tm.tm_mon + 1) {
+                    pLerCli->idade--;
+                } else if(pLerCli->nascimento.mes == tm.tm_mon + 1){
+                    if(pLerCli->nascimento.dia < tm.tm_mday) {
+                        pLerCli->idade--;
+                    }
+                }
+                break;
+            }
+            etapa++;
+          }
+      }
+    }
+
+}
+
+/****************** FUNCAO DE CABEÇALHO DE CLIENTE ******************/
+void clienteCabecalho() {
+    cont_linha++;
+    gotoxy(20, cont_linha);
+    cout << "Código: ";
+    cont_linha++;
+    gotoxy(20, cont_linha);
+    cout << "Nome: ";
+    cont_linha++;
+    gotoxy(20, cont_linha);
+    cout << "Data de nascimento (dia mês ano): ";
+    cont_linha++;
+    gotoxy(20, cont_linha);
+    cout << "E-mail: ";
+    cont_linha++;
+    gotoxy(20, cont_linha);
+    cout << "Fone: ";
+    cont_linha++;
+    gotoxy(20, cont_linha);
+    cout << "Celular: ";
+    cont_linha++;
+    gotoxy(20, cont_linha);
+    cout << "Logradouro: ";
+    cont_linha++;
+    gotoxy(20, cont_linha);
+    cout << "Número: ";
+    cont_linha++;
+    gotoxy(20, cont_linha);
+    cout << "Bairro: ";
+    cont_linha++;
+    gotoxy(20, cont_linha);
+    cout << "Cidade: ";
+    cont_linha++;
+    gotoxy(20, cont_linha);
+    cout << "Estado: ";
+    cont_linha++;
+    gotoxy(20, cont_linha);
+    cout << "CEP: ";
+    cont_linha++;
+    gotoxy(20, cont_linha);
+    cout << "Idade: ";
+    cont_linha = cont_linha - 13;
+}
+
+/****************** FUNCAO BUSCAR CLIENTE POR CÓDIGO OU NOME ******************/
+Cliente* escolherCliente() { //Retorna um cliente escolhido ou nulo
+    pAuxCli = &inicio_cliente;
+    char chaveBuscar[50];
+    int opcao, indice = 0;
+    gotoxy(20, 5);
+    cout << "Buscar por ";
+    gotoxy(20, 6);
+    cout << "Código - 1";
+    gotoxy(20, 7);
+    cout << "Nome - 2";
+    gotoxy(20, 8);
+    cin >> opcao;
+    getchar();
+    system("cls");
+    switch(opcao) {
+    case 1:
+        gotoxy(20, 5);
+        cout << "Código buscar: ";
+        gets(chaveBuscar);
+        while(pAuxCli->pProxCli) {
+            pAuxCli = pAuxCli->pProxCli;
+            indice = 0;
+            indice = strcmp(pAuxCli->codigo, chaveBuscar);
+            if(indice == 0) {
+                //exibirProfissional(pAuxProf);
+                return pAuxCli;
+                break;
+            }
+        }
+        break;
+    case 2:
+        gotoxy(20, 5);
+        cout << "Nome buscar: ";
+        gets(chaveBuscar);
+        while(pAuxCli->pProxCli) {
+            pAuxCli = pAuxCli->pProxCli;
+            indice = 0;
+            indice = existe(pAuxCli->nome, chaveBuscar, indice);
+            if(indice != -1) {
+                //exibirProfissional(pAuxProf);
+                return pAuxCli;
+                break;
+            }
+        }
+        break;
+    default:
+        gotoxy(20, 5);
+        cout << "Opção inválida!";
+        system("pause");
+        break;
+    }
+    system("cls");
+}
+
+/****************** FUNCAO ATUALIZAR CLIENTE DA RAM PARA ARQUIVO ******************/
+void resetarCliente() {
+    gravarCliente(pExcluiCli, 1); //Limpar registros
+    //Salva os registros em arquivo
+    pExcluiCli = inicio_cliente.pProxCli;
+    while(pExcluiCli) {
+        gravarCliente(pExcluiCli);
+        pExcluiCli = pExcluiCli->pProxCli;
+    }
+}
+
+/****************** FUNCAO EXCLUIR CLIENTE ******************/
+void excluirCliente(Cliente *cliente) {
+    if(cliente) {//Se não for nulo
+        if(cliente->pProxCli) { //Não é o último da lista
+            if(cliente->pAntCli != &inicio_cliente) { //Tem anterior
+                pExcluiCli = cliente->pAntCli; //PExclui recebe o anterior do atual
+                pExcluiCli->pProxCli = cliente->pProxCli; //Próximo do anterior recebe o proximo do atual
+                cliente->pProxCli->pAntCli = pExcluiCli; //Anterior do próximo recebe anterior do atual
+                delete cliente; //Exclui atual
+            } else { //Não tem anterior
+                inicio_cliente.pProxCli = cliente->pProxCli; //Início aponta para próximo do atual
+                cliente->pProxCli->pAntCli = &inicio_cliente; //Anterior do próximo do atual aponta para início
+                delete cliente;
+            }
+        } else { //É o último da lista
+            if(cliente->pAntCli != &inicio_cliente) { // Tem anterior
+                cliente->pAntCli->pProxCli = NULL; //Próximo do anterior recebe nulo
+                delete cliente;
+            } else { //Não tem anterior
+                inicio_cliente.pProxCli = NULL;
+                delete cliente;
+            }
+        }
+        resetarCliente();
+    }
+}
+
+/****************** FUNCAO VALIDAR CÓDIGO CLIENTE ******************/
+bool verificaCodigoCliente(char chave[20]) {
+    Cliente *pExisteClie;
+    pExisteClie = &inicio_cliente;
+    while(pExisteClie->pProxCli) {
+        pExisteClie = pExisteClie->pProxCli;
+        if(strcmp(chave, pExisteClie->codigo) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/****************** FUNCAO RECEBER CLIENTE ******************/
+void recebeCliente() {
+    char chave[20];
+    pAuxCli = &inicio_cliente;
+    while(pAuxCli->pProxCli) { //Percorre até o último registro da lista
+        pAuxCli = pAuxCli->pProxCli;
+    }
+    while(true) {
+        system("cls");
+        cont_linha = 4;
+        clienteCabecalho();
+        gotoxy(28, 5);
+        gets(chave);
+        if(verificaCodigoCliente(chave)) {
+            gotoxy(20, 15);
+            cout << "Código já existente!";
+            system("pause");
+        } else {
+            pAuxCli->pProxCli = new Cliente; //Cria um espaço no pPróximo do último
+            pAuxCli->pProxCli->pAntCli = pAuxCli; //O pAnterior do novo espaço aponta para o atual
+            pAuxCli = pAuxCli->pProxCli; //Atual aponta para o próximo
+            strcpy(pAuxCli->codigo, chave);
+            break;
+        }
+    }
+    gotoxy(26, 6);
+    gets(pAuxCli->nome);
+    gotoxy(54, 7);
+    cin >> pAuxCli->nascimento.dia;
+    gotoxy(57, 7);
+    cin >> pAuxCli->nascimento.mes;
+    gotoxy(60, 7);
+    cin >> pAuxCli->nascimento.ano;
+    getchar();
+    gotoxy(28, 8);
+    gets(pAuxCli->email);
+    gotoxy(26, 9);
+    gets(pAuxCli->fone);
+    gotoxy(29, 10);
+    gets(pAuxCli->celular);
+    gotoxy(32, 11);
+    gets(pAuxCli->endCliente.logradouro);
+    gotoxy(28, 12);
+    cin >> pAuxCli->endCliente.numero;
+    getchar();
+    gotoxy(28, 13);
+    gets(pAuxCli->endCliente.bairro);
+    gotoxy(28, 14);
+    gets(pAuxCli->endCliente.cidade);
+    gotoxy(28, 15);
+    gets(pAuxCli->endCliente.estado);
+    gotoxy(25, 16);
+    gets(pAuxCli->endCliente.cep);
+    pAuxCli->idade = tm.tm_year + 1900 - pAuxCli->nascimento.ano;
+    if(pAuxCli->nascimento.mes > tm.tm_mon + 1) {
+        pAuxCli->idade--;
+    } else if(pAuxCli->nascimento.mes == tm.tm_mon + 1){
+        if(pAuxCli->nascimento.dia < tm.tm_mday) {
+            pAuxCli->idade--;
+        }
+    }
+    gravarCliente(pAuxCli);
+}
+
+/****************** FUNCAO EXIBIR CLIENTE ******************/
+void exibirCliente(Cliente *cliente) { //Exibe o cliente indicado pela região de memória
+    cont_linha++;
+    gotoxy(28, cont_linha);
+    cout << cliente->codigo;
+    cont_linha++;
+    gotoxy(26, cont_linha);
+    cout << cliente->nome;
+    cont_linha++;
+    gotoxy(54, cont_linha);
+    cout << cliente->nascimento.dia << "/" << cliente->nascimento.mes << "/" << cliente->nascimento.ano;
+    cont_linha++;
+    gotoxy(28, cont_linha);
+    cout << cliente->email;
+    cont_linha++;
+    gotoxy(26, cont_linha);
+    cout << cliente->fone;
+    cont_linha++;
+    gotoxy(29, cont_linha);
+    cout << cliente->celular;
+    cont_linha++;
+    gotoxy(32, cont_linha);
+    cout << cliente->endCliente.logradouro;
+    cont_linha++;
+    gotoxy(28, cont_linha);
+    cout << cliente->endCliente.numero;
+    cont_linha++;
+    gotoxy(28, cont_linha);
+    cout << cliente->endCliente.bairro;
+    cont_linha++;
+    gotoxy(28, cont_linha);
+    cout << cliente->endCliente.cidade;
+    cont_linha++;
+    gotoxy(28, cont_linha);
+    cout << cliente->endCliente.estado;
+    cont_linha++;
+    gotoxy(25, cont_linha);
+    cout << cliente->endCliente.cep;
+    cont_linha++;
+    gotoxy(27, cont_linha);
+    cout << cliente->idade;
+}
+
+/****************** FUNCAO EXIBIR TODOS OS CLIENTES ******************/
+void exibirClientes() { //Exibe todos os clientes
+    pAuxCli = &inicio_cliente;
+    system("cls");
+    cont_linha = 4;
+    while(pAuxCli->pProxCli) {
+        pAuxCli = pAuxCli->pProxCli;
+        clienteCabecalho();
+        exibirCliente(pAuxCli);
+    }
+}
+
+/****************** FUNCAO MENU ALTERAR CLIENTE ATRIBUTO ******************/
+void menuAlterarClienteAtributo(Cliente *cliente) { //Altera um atributo específico do cliente
+    int opcao;
+    system("cls");
+    gotoxy(20, 3);
+    cout << "MENU ALTERAR";
+    gotoxy(20, 5);
+    cout << "O que deseja alterar? ";
+    gotoxy(15, 7);
+    cout << "Cancelar - 0";
+    gotoxy(15, 8);
+    cout << "Código - 1 ";
+    gotoxy(15, 9);
+    cout << "Nome - 2 ";
+    gotoxy(15, 10);
+    cout << "Data de nascimento - 3 ";
+    gotoxy(15, 11);
+    cout << "E-mail - 4";
+    gotoxy(15, 12);
+    cout << "Fone - 5 ";
+    gotoxy(15, 13);
+    cout << "Celular - 6";
+    gotoxy(15, 14);
+    cout << "Logradouro - 7";
+    gotoxy(15, 15);
+    cout << "Número - 8";
+    gotoxy(15, 16);
+    cout << "Bairro - 9";
+    gotoxy(15, 17);
+    cout << "Cidade - 10";
+    gotoxy(15, 18);
+    cout << "Estado - 11";
+    gotoxy(15, 19);
+    cout << "CEP - 12";
+    cin >> opcao;
+    getchar();
+    switch(opcao) {
+    case 0:
+        break;
+    case 1:
+        char chave[20];
+        while(true) {
+            system("cls");
+            gotoxy(20, 5);
+            cout << "Código: ";
+            gotoxy(28, 5);
+            gets(chave);
+            if(verificaCodigoCliente(chave)) {
+                gotoxy(20, 6);
+                cout << "Código já existente!";
+                system("pause");
+            } else {
+                strcpy(cliente->codigo, chave);
+                break;
+            }
+        }
+        break;
+    case 2:
+        gotoxy(20, 5);
+        cout << "Nome: ";
+        gets(cliente->nome);
+        break;
+    case 3:
+        gotoxy(20, 5);
+        cout << "Data de nascimento (dia mês ano): ";
+        gotoxy(54, 5);
+        cin >> cliente->nascimento.dia;
+        gotoxy(57, 5);
+        cin >> cliente->nascimento.mes;
+        gotoxy(60, 5);
+        cin >> cliente->nascimento.ano;
+        cliente->idade = tm.tm_year + 1900 - cliente->nascimento.ano;
+        if(cliente->nascimento.mes > tm.tm_mon + 1) {
+            cliente->idade--;
+        } else if(cliente->nascimento.mes == tm.tm_mon + 1){
+            if(cliente->nascimento.dia < tm.tm_mday) {
+                cliente->idade--;
+            }
+        }
+        break;
+    case 4:
+        gotoxy(20, 5);
+        cout << "E-mail: ";
+        gets(cliente->email);
+        break;
+    case 5:
+        gotoxy(20, 5);
+        cout << "Fone: ";
+        gets(cliente->fone);
+        break;
+    case 6:
+        gotoxy(20, 5);
+        cout << "Celular: ";
+        gets(cliente->celular);
+        break;
+    case 7:
+        gotoxy(20, 5);
+        cout << "Logradouro: ";
+        gets(cliente->endCliente.logradouro);
+        break;
+    case 8:
+        gotoxy(20, 5);
+        cout << "Número: ";
+        cin >> cliente->endCliente.numero;
+        break;
+    case 9:
+        gotoxy(20, 5);
+        cout << "Bairro: ";
+        gets(cliente->endCliente.bairro);
+        break;
+    case 10:
+        gotoxy(20, 5);
+        cout << "Cidade: ";
+        gets(cliente->endCliente.cidade);
+        break;
+    case 11:
+        gotoxy(20, 5);
+        cout << "Estado: ";
+        gets(cliente->endCliente.estado);
+        break;
+    case 12:
+        gotoxy(20, 5);
+        cout << "CEP: ";
+        gets(cliente->endCliente.cep);
+        break;
+    default:
+        cout << "Opção inválida!";
+        break;
+    }
+}
+
+/****************** FUNCAO ALTERAR CLIENTE TUDO ******************/
+void alterarCliente(Cliente *cliente) {
+    char chave[20];
+    while(true) {
+        system("cls");
+        cont_linha = 4;
+        clienteCabecalho();
+        gotoxy(28, 5);
+        gets(chave);
+        if(verificaCodigoCliente(chave)) {
+            gotoxy(20, 15);
+            cout << "Código já existente!";
+            system("pause");
+        } else {
+            strcpy(cliente->codigo, chave);
+            break;
+        }
+    }
+    gotoxy(26, 6);
+    gets(cliente->nome);
+    gotoxy(54, 12);
+    cin >> cliente->nascimento.dia;
+    gotoxy(57, 12);
+    cin >> cliente->nascimento.mes;
+    gotoxy(60, 12);
+    cin >> cliente->nascimento.ano;
+    getchar();
+    gotoxy(27, 7);
+    gets(cliente->email);
+    gotoxy(26, 8);
+    gets(cliente->fone);
+    gotoxy(29, 9);
+    gets(cliente->celular);
+    gotoxy(32, 10);
+    gets(cliente->endCliente.logradouro);
+    gotoxy(28, 10);
+    cin >> cliente->endCliente.numero;
+    gotoxy(28, 10);
+    gets(cliente->endCliente.bairro);
+    gotoxy(28, 10);
+    gets(cliente->endCliente.cidade);
+    gotoxy(28, 10);
+    gets(cliente->endCliente.estado);
+    gotoxy(25, 10);
+    gets(cliente->endCliente.cep);
+
+    cliente->idade = tm.tm_year + 1900 - cliente->nascimento.ano;
+    if(cliente->nascimento.mes > tm.tm_mon + 1) {
+        cliente->idade--;
+    } else if(cliente->nascimento.mes == tm.tm_mon + 1){
+        if(cliente->nascimento.dia < tm.tm_mday) {
+            cliente->idade--;
+        }
+    }
+    resetarCliente();
+}
+
+/****************** FUNCAO MENU ALTERAR CLIENTE ******************/
+void menuAlterarCliente() {
+    int op;
+    Cliente *pAltCli;
+    gotoxy(20, 5);
+    cout << "Como deseja alterar?";
+    gotoxy(20, 7);
+    cout << "Cancelar - 0";
+    gotoxy(20, 8);
+    cout << "Tudo - 1";
+    gotoxy(20, 9);
+    cout << "Atributo - 2";
+    gotoxy(20, 10);
+    cin >> op;
+    switch(op) {
+    case 0:
+        break;
+    case 1:
+        system("cls");
+        pAltCli = escolherCliente(); //Busca um cliente pela matricula ou nome
+        system("cls");
+        if(pAltCli) {
+            cont_linha = 4;
+            clienteCabecalho();
+            exibirCliente(pAltCli);
+            system("pause");
+            system("cls");
+            alterarCliente(pAltCli);
+        } else {
+            cout << "Cliente não encontrado!";
+            system("pause");
+        }
+        break;
+    case 2:
+        system("cls");
+        pAltCli = escolherCliente(); //Busca um cliente pela matricula ou nome
+        system("cls");
+        if(pAltCli) {
+            system("cls");
+            cont_linha = 4;
+            clienteCabecalho();
+            exibirCliente(pAltCli);
+            system("pause");
+            menuAlterarClienteAtributo(pAltCli);
+        } else {
+            cout << "Cliente não encontrado!";
+            system("pause");
+        }
+        break;
+    default:
+        cout << "Opção inválida!";
+        system("pause");
+        break;
+    }
+}
+
+/****************** FUNCAO TROCAR DADOS CLIENTE ******************/
+void trocarDadosCliente(Cliente *pAtribui, Cliente *pRecebe) { //Troca os atributos de dois ponteiros de cliente
+    strcpy(pRecebe->codigo, pAtribui->codigo);
+    strcpy(pRecebe->nome, pAtribui->nome);
+    pRecebe->nascimento = pAtribui->nascimento;
+    strcpy(pRecebe->email, pAtribui->email);
+    strcpy(pRecebe->fone, pAtribui->fone);
+    strcpy(pRecebe->celular, pAtribui->celular);
+    pRecebe->endCliente = pAtribui->endCliente;
+}
+
+/****************** FUNCAO ORDENAR CLIENTE ******************/
+void ordenarCliente(int tipo = 1) { //Ordenar default 1 por codigo, 2 por nome
+    Cliente *pOrdCli, *pSubsCli = new Cliente;
+    pAuxCli = &inicio_cliente;
+    while(pAuxCli->pProxCli) {
+        pAuxCli = pAuxCli->pProxCli;
+        if(pAuxCli->pProxCli) {
+            pOrdCli = pAuxCli->pProxCli;
+            while(pOrdCli) {
+                if(tipo == 1) {
+                    if(comparaString(pAuxCli->codigo, pOrdCli->codigo)) {
+                        //trocar
+                        trocarDadosCliente(pOrdCli, pSubsCli);
+                        trocarDadosCliente(pAuxCli, pOrdCli);
+                        trocarDadosCliente(pSubsCli, pAuxCli);
+                    }
+                } else if(tipo == 2) {
+                    if(comparaString(pAuxCli->nome, pOrdCli->nome)) {
+                        //trocar
+                        trocarDadosCliente(pOrdCli, pSubsCli);
+                        trocarDadosCliente(pAuxCli, pOrdCli);
+                        trocarDadosCliente(pSubsCli, pAuxCli);
+                    }
+                pOrdCli = pOrdCli->pProxCli;
+                }
+            }
+        }
+    }
+}
+
+/****************** FUNCAO MENU EXIBIR CLIENTE ******************/
+void menuExibirCliente() {
+    int op;
+    Cliente *pExibeCli;
+    gotoxy(20, 5);
+    cout << "Como deseja exibir?";
+    gotoxy(20, 7);
+    cout << "Cancelar - 0";
+    gotoxy(20, 8);
+    cout << "Tudo - 1";
+    gotoxy(20, 9);
+    cout << "Buscar por atributo - 2";
+    gotoxy(20, 10);
+    cin >> op;
+    getchar();
+    switch(op) {
+    case 0:
+        break;
+    case 1:
+        system("cls");
+        exibirClientes();
+        break;
+    case 2:
+        system("cls");
+        pExibeCli = escolherCliente(); //Busca um cliente pelo codigo ou nome
+        system("cls");
+        if(pExibeCli) {
+            cont_linha = 4;
+            clienteCabecalho();
+            exibirCliente(pExibeCli);
+        } else {
+            cout << "Cliente não encontrado!";
+        }
+        break;
+    default:
+        cout << "Opção inválida!";
+        break;
+    }
+}
+
+/****************** FUNCAO MENU EXCLUIR CLIENTE ******************/
+void menuExcluirCliente() {
+    int op;
+    Cliente *pExcluiCli;
+    gotoxy(20, 5);
+    cout << "Como deseja excluir?";
+    gotoxy(20, 7);
+    cout << "Cancelar - 0";
+    gotoxy(20, 8);
+    cout << "Tudo - 1";
+    gotoxy(20, 9);
+    cout << "Buscar por atributo - 2";
+    gotoxy(20, 10);
+    cin >> op;
+    getchar();
+    switch(op) {
+    case 0:
+        break;
+    case 1:
+        system("cls");
+        pExcluiCli = &inicio_cliente;
+        while(pExcluiCli->pProxCli) {
+            pExcluiCli = pExcluiCli->pProxCli;
+            excluirCliente(pExcluiCli);
+        }
+        break;
+    case 2:
+        system("cls");
+        pExcluiCli = escolherCliente(); //Busca um cliente pelo código ou nome
+        system("cls");
+        if(pExcluiCli) {
+            excluirCliente(pExcluiCli);
+        } else {
+            cout << "Cliente não encontrado!";
+        }
+        break;
+    default:
+        cout << "Opção inválida!";
+        break;
+    }
+}
+
+/****************** FUNCAO MENU ORDENAR CLIENTE ******************/
+void menuOrdenarCliente() {
+    int op;
+    gotoxy(20, 5);
+    cout << "Como deseja ordenar?";
+    gotoxy(20, 7);
+    cout << "Cancelar - 0";
+    gotoxy(20, 8);
+    cout << "Por código - 1";
+    gotoxy(20, 9);
+    cout << "Por nome - 2";
+    gotoxy(20, 10);
+    cin >> op;
+    getchar();
+    system("cls");
+    switch(op) {
+    case 0:
+        break;
+    case 1:
+        ordenarCliente();
+        gotoxy(20, 5);
+        cout << "ORDENADO POR CÓDIGO\n";
+        break;
+    case 2:
+        ordenarCliente(2);
+        gotoxy(20, 5);
+        cout << "ORDENADO POR NOME\n";
+        break;
+    default:
+        cout << "Opção inválida!\n";
+        break;
+    }
+    system("pause");
+}
+
+/****************** FUNCAO MENU CIENTE ******************/
+void menuCliente() {
+    int op;
+    while(op != 0) {
+        gotoxy(20, 3);
+        cout << "MENU CLIENTE";
+        gotoxy(20, 5);
+        cout << "O que deseja fazer: ";
+        gotoxy(20, 7);
+        cout << "Voltar - 0";
+        gotoxy(20, 8);
+        cout << "Adicionar cliente - 1";
+        gotoxy(20, 9);
+        cout << "Exibir cliente - 2";
+        gotoxy(20, 10);
+        cout << "Alterar cliente - 3";
+        gotoxy(20, 11);
+        cout << "Remover cliente - 4";
+        gotoxy(20, 12);
+        cout << "Ordenar cliente - 5";
+        gotoxy(20, 13);
+        cin >> op;
+        getchar();
+        switch(op) {
+        case 0:
+            break;
+        case 1:
+            system("cls");
+            cont_linha = 4;
+            clienteCabecalho();
+            recebeCliente();
+            break;
+        case 2:
+            system("cls");
+            menuExibirCliente();
+            cout << "\n";
+            system("pause");
+            break;
+        case 3:
+            system("cls");
+            menuAlterarCliente();
+            break;
+        case 4:
+            system("cls");
+            menuExcluirCliente();
+            break;
+        case 5:
+            system("cls");
+            menuOrdenarCliente();
+            break;
+        default:
+            cout << "Opção inválida!";
+            break;
+        }
+        system("cls");
+    }
 }
 
 int main() {
     setlocale(LC_ALL, "Portuguese");
     lerProfissional();
+    lerCliente();
     informacoesTela();
-    menuProfissional();
-
+    //menuProfissional();
+    menuCliente();
     return 0;
 }
